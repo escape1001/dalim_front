@@ -54,6 +54,16 @@ export default function Header() {
                   게시판
                 </Link>
               </li>
+              <li>
+                <Link href="/accounts/mypage">
+                  마이페이지
+                </Link>
+              </li>
+              <li>
+                <Link href="/crews/admin">
+                  크루 관리(크루유저)
+                </Link>
+              </li>
             </ul>
 
             <div>
