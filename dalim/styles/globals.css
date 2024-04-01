@@ -15,6 +15,7 @@
   --font-size-smaller: 1.2rem;
   --page-padding-default : 10rem 0 15rem;
   --default-shadow:0px 4px 4px rgba(0, 0, 0, 0.25);
+  --default-transition: all 0.2s ease-in-out;
 }
 
 *{
@@ -91,13 +92,32 @@ main{
   transition: all 0.2s ease-in-out;
 }
 
+.txt-btn{
+  color: var(--color-navy);
+}
+
 .txt-btn:hover, .txt-btn:focus{
-  transition: filter 0.2s ease-in-out;
-  filter: invert(55%) sepia(96%) saturate(5050%) hue-rotate(200deg) brightness(105%) contrast(90%);
+  text-decoration: underline;
+  color:var(--color-point);
 }
 
 .default-btn:hover, .default-btn:focus{
   filter:brightness(1.2);
+}
+
+.default-badge{
+  display: inline-block;
+  font-style: normal;
+  background-color: var(--color-point);
+  color: var(--color-light);
+  padding: .3rem .6rem;
+  border-radius: 10rem;
+  font-weight: 600;
+}
+
+.default-badge.yellow{
+  background-color: var(--color-point-yellow);
+  color: var(--color-dark);
 }
 
 .default-form ul{
@@ -127,20 +147,18 @@ main{
   border-radius: .5rem;
 }
 
+.course-list{
+  display: inline-flex;
+  gap:.5rem;
+  flex-wrap: wrap;
+}
+
 .swiper-pagination-bullet{
   background-color: var(--color-light) !important;
 }
 
 .swiper-pagination-bullet-active{
   background-color: var(--color-point) !important;
-}
-
-.default-badge{
-  padding:0.2rem 1rem;
-  font-size: var(--font-size-small);
-  color: var(--color-dark);
-  background-color: var(--color-light-70);
-  border-radius: 2rem;
 }
 
 .load-more{
