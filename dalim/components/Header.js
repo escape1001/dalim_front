@@ -1,5 +1,7 @@
-import styled from 'styled-components';
+import { useContext } from 'react';
 import Link from 'next/link';
+import styled from 'styled-components';
+import { AuthContext } from '../context/authContext';
 
 
 const Wrapper = styled.header`
@@ -26,6 +28,8 @@ const Wrapper = styled.header`
 `;
 
 export default function Header() {
+  const {user, logout} = useContext(AuthContext);
+  
   return (
     <Wrapper>
         <nav className='center-content'>
@@ -51,6 +55,21 @@ export default function Header() {
                 </Link>
               </li>
             </ul>
+
+            <div>
+              {
+                user ? 
+                <button onClick={logout}>로그아웃</button> :
+                <>
+                  <Link href="/accounts/login">
+                    로그인
+                  </Link>
+                  <Link href="/accounts/signup">
+                    회원가입
+                  </Link>
+                </>
+              }
+            </div>
         </nav>
     </Wrapper>
   )
