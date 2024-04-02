@@ -41,6 +41,21 @@ const AuthProvider = ({ children }) => {
         }
     };
 
+    const signup = async (data) => {
+        const url = process.env.NEXT_PUBLIC_API_URL + "accounts/signup/";
+        const response = await fetch(url, {
+            method: "POST",
+            body: data,
+        });
+
+        if (response.status === 201) {
+            router.push("/accounts/login/");
+        } else {
+            alert("회원가입 실패");
+            console.error(response);
+        }
+    };
+
     const refresh_token = async () => {
         const url = process.env.NEXT_PUBLIC_API_URL + "accounts/token/refresh/";
         const data = {refresh : localStorage.getItem('dalim_refresh')};
@@ -96,6 +111,7 @@ return (
             setUser,
             login,
             logout,
+            signup,
             refresh_token,
     }}>
         {children}
