@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from "next/router";
+import { Icon } from './Icons';
 
 
 const Wrapper = styled.div`
@@ -49,15 +49,6 @@ const Wrapper = styled.div`
         background-image: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0));
     }
 
-    .img-area .overlay button{
-        border: 1px solid red;
-        background-color: aliceblue;
-    }
-
-    .img-area .overlay button.favorite{
-        background-color: red;
-    }
-
     .text-area{
         padding:1rem;
         display: flex;
@@ -102,7 +93,13 @@ export default function RaceCard() {
             <div className='img-area'>
                 <img src={race.thumbnail_image} alt={race.name}/>
                 <p className='overlay'>
-                    <button className={isFavorite ? "favorite" : ""} onClick={(e)=>{toggleFavorite(e);}}>관심</button>
+                    <button onClick={(e)=>{toggleFavorite(e);}}>
+                        {
+                            isFavorite ?
+                            <Icon.Star fill="true" size="2.5rem"/>:
+                            <Icon.Star size="2.5rem"/>
+                        }
+                    </button>
                     <i className="default-badge">{race.status}{race.d_day ? ` D-${race.d_day}`: ""}</i>
                 </p>
             </div>

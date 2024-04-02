@@ -10,6 +10,7 @@ import Link from 'next/link';
 import RaceCard from '../components/RaceCard';
 import ArticleCard from '../components/ArticleCard';
 
+
 const Wrapper = styled.main`
   section{
     padding-bottom: 8rem;

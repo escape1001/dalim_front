@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from "next/router";
+import { Icon } from './Icons';
 
 
 const Wrapper = styled.div`
@@ -46,15 +46,6 @@ const Wrapper = styled.div`
         align-items: flex-start;
         color:var(--color-white);
         background-image: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0));
-    }
-
-    .img-area .overlay button{
-        border: 1px solid red;
-        background-color: aliceblue;
-    }
-
-    .img-area .overlay button.favorite{
-        background-color: red;
     }
 
     .text-area{
@@ -118,7 +109,13 @@ export default function CrewCard() {
                 <img src={crew.thumbnail_image} alt={crew.name}/>
                 <p className='overlay'>
                     <span>{crew.member_count}명의 러너가 달리는 중</span>
-                    <button className={isFavorite ? "favorite" : ""} onClick={(e)=>{toggleFavorite(e);}}>관심</button>
+                    <button onClick={(e)=>{toggleFavorite(e);}}>
+                        {
+                            isFavorite ?
+                            <Icon.Star fill="true" size="2.5rem"/>:
+                            <Icon.Star size="2.5rem"/>
+                        }
+                    </button>
                 </p>
             </div>
             <div className='text-area'>
