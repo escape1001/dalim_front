@@ -77,6 +77,7 @@ main{
   display: inline-flex;
   align-items:center;
   justify-content:center;
+  gap:1rem;
   width:100%;
   max-width:50rem;
   padding: 0 1rem;
@@ -90,6 +91,18 @@ main{
   border-radius: .6rem;
   cursor:pointer;
   transition: all 0.2s ease-in-out;
+}
+
+.default-btn.line{
+  background-color: var(--color-white);
+  color: var(--color-point);
+  border: 2px solid var(--color-point);
+}
+
+.default-btn.small{
+  width: auto;
+  height: auto;
+  padding:1rem;
 }
 
 .txt-btn{
@@ -173,6 +186,26 @@ main{
   display: none;
 }
 
+.default-table{
+  width: 100%;
+  text-align: center;
+}
+
+.default-table thead{
+  background-color: var(--color-point);
+  color: var(--color-white);
+}
+
+.default-table th,
+.default-table td{
+  padding:1rem;
+  border-radius: .5rem;
+}
+
+.default-table tr:nth-child(even){
+  background-color: var(--color-light);
+}
+
 .course-list{
   display: inline-flex;
   gap:.5rem;
@@ -188,7 +221,7 @@ main{
 }
 
 @media all and (max-width:1023px) {
- html{
-  font-size:7.7px;
- } 
+  html{
+    font-size:7.7px;
+  } 
 }

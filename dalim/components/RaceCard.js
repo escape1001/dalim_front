@@ -61,45 +61,86 @@ const Wrapper = styled.div`
     .text-area strong{
         font-size: var(--font-size-big);
     }
-`;
 
-export default function RaceCard() {
-    const race = {
-        id:2,
-        status:"접수중",
-        d_day: 3,
-        name : "양천마라톤",
-        start_date: "2024/05/30",
-        end_date: "2024/05/31",
-        courses: ["full", "half", "5km"],
-        thumbnail_image: "https://picsum.photos/200",
-        is_favorite: true
+    .record{
+        display: flex;
+        flex-wrap: wrap;
+        gap:.5rem;
     }
 
+    .record span{
+        width: 100%;
+        flex-grow: 1;
+    }
+
+    .record span i{
+        font-style: normal;
+        font-weight: 600;
+        color: var(--color-point);
+    }
+
+    .record button{
+        padding: .5rem;
+        font-size: var(--font-size-small);
+    }
+`;
+
+export default function RaceCard({race, is_personal=false}) {
+    const router = useRouter();
     const [isFavorite, setIsFavorite] = useState(race.is_favorite);
 
     const toggleFavorite = (e) => {
-        console.log(e.target);
         e.stopPropagation();
         
         // [TO DO] 여기서 서버에 요청을 보내서 is_favorite를 업데이트해야 함
         setIsFavorite(!isFavorite);
     }
+    
+    const addRecord = (e) => {
+        e.stopPropagation();
+        // prompt로 수정할 값 입력받기.
+        const race_record = prompt("대회 기록을 입력해주세요.");
+        
+        if (race_record === null) return;
+        
+        // [TO DO] 여기서 서버에 요청을 보내서 레코드를 추가해야 함
+        alert(`add record : ${race.id} / ${race_record}`);
+    };
+    
+    const patchRecord = (e) => {
+        e.stopPropagation();
 
-    const router = useRouter();
+        // prompt로 수정할 값 입력받기.
+        const mod_record = prompt(`기존 기록은 ${race.record} 입니다. 수정할 값을 입력해주세요.`);
+
+        if (mod_record === null) return;
+        
+        // 수정 요청 [TO DO : /accounts/mypage/race/record/<int:race_id> PATCH 요청]
+        alert(`patch record : ${race.id} / ${mod_record}m`);
+    };
+    
+    const deleteRecord = (e) => {
+        e.stopPropagation();
+        // [TO DO] 여기서 서버에 요청을 보내서 레코드를 삭제해야 함
+        alert(`delete record : ${race.id}`);
+    };
+
 
     return (
         <Wrapper onClick={()=>{router.push(`/race/${race.id}`)}}>
             <div className='img-area'>
                 <img src={race.thumbnail_image} alt={race.name}/>
                 <p className='overlay'>
-                    <button onClick={(e)=>{toggleFavorite(e);}}>
-                        {
-                            isFavorite ?
-                            <Icon.Star fill="true" size="2.5rem"/>:
-                            <Icon.Star size="2.5rem"/>
-                        }
-                    </button>
+                    {
+                        !is_personal &&
+                        <button onClick={(e)=>{toggleFavorite(e);}}>
+                            {
+                                isFavorite ?
+                                <Icon.Star fill="true" size="2.5rem"/>:
+                                <Icon.Star size="2.5rem"/>
+                            }
+                        </button>
+                    }
                     <i className="default-badge">{race.status}{race.d_day ? ` D-${race.d_day}`: ""}</i>
                 </p>
             </div>
@@ -118,6 +159,36 @@ export default function RaceCard() {
                         }
                     </ul>
                 </div>
+                {
+                    !race.d_day && (
+                        race.record ?
+                        <p className='record'>
+                            <span>
+                                내 기록 : <i>{race.record}</i>
+                            </span>
+                            <button
+                                onClick={(e)=>{patchRecord(e);}}
+                                className='default-btn line small'
+                            >
+                                내 기록 수정하기
+                            </button>
+                            <button
+                                onClick={(e)=>{deleteRecord(e);}}
+                                className='default-btn line small'
+                            >
+                                내 기록 삭제하기
+                            </button>
+                        </p>:
+                        <p className='record'>
+                            <button
+                                onClick={(e)=>{addRecord(e);}}
+                                className='default-btn line small'
+                            >
+                                내 기록 추가하기
+                            </button>
+                        </p>
+                    )                    
+                }
             </div>
         </Wrapper>
     )

@@ -70,6 +70,100 @@ const Wrapper = styled.main`
 `;
 
 export default function Home() {
+  const crew_list = [
+    {
+      "id": 1,
+      "name": "러닝 크루 A",
+      "is_favorite": false,
+      "meet_days": ["sat"],
+      "meet_time": "07:00",
+      "thumbnail_image": "https://picsum.photos/200",
+      "member_count": 20,
+      "location_city": "서울",
+      "location_district": "잠실"
+    },
+    {
+      "id": 1,
+      "name": "러닝 크루 A",
+      "is_favorite": false,
+      "meet_days": ["sat"],
+      "meet_time": "07:00",
+      "thumbnail_image": "https://picsum.photos/200",
+      "member_count": 20,
+      "location_city": "서울",
+      "location_district": "잠실"
+    },
+    {
+      "id": 1,
+      "name": "러닝 크루 A",
+      "is_favorite": false,
+      "meet_days": ["sat"],
+      "meet_time": "07:00",
+      "thumbnail_image": "https://picsum.photos/200",
+      "member_count": 20,
+      "location_city": "서울",
+      "location_district": "잠실"
+    },
+    {
+      "id": 1,
+      "name": "러닝 크루 A",
+      "is_favorite": false,
+      "meet_days": ["sat"],
+      "meet_time": "07:00",
+      "thumbnail_image": "https://picsum.photos/200",
+      "member_count": 20,
+      "location_city": "서울",
+      "location_district": "잠실"
+    },
+  ];
+
+  const race_list = [
+    {
+      id:1,
+      status:"접수중",
+      d_day: 3,
+      name : "양천마라톤1",
+      start_date: "2024/05/30",
+      end_date: "2024/05/31",
+      courses: ["full", "half", "5km", "3km"],
+      thumbnail_image: "https://picsum.photos/200",
+      is_favorite: true
+    },
+    {
+      id:2,
+      status:"접수중",
+      d_day: 3,
+      name : "양천마라톤",
+      start_date: "2024/05/30",
+      end_date: "2024/05/31",
+      courses: ["full", "half", "5km"],
+      thumbnail_image: "https://picsum.photos/200",
+      is_favorite: false
+    },
+    {
+      id:3,
+      status:"접수중",
+      d_day: 3,
+      name : "양천마라톤",
+      start_date: "2024/05/30",
+      end_date: "2024/05/31",
+      courses: ["full", "half", "5km"],
+      thumbnail_image: "https://picsum.photos/200",
+      is_favorite: true
+    },
+    {
+      id:3,
+      status:"접수중",
+      d_day: 3,
+      name : "양천마라톤",
+      start_date: "2024/05/30",
+      end_date: "2024/05/31",
+      courses: ["full", "half", "5km"],
+      thumbnail_image: "https://picsum.photos/200",
+      is_favorite: true
+    },
+  ];
+
   return (
     <Wrapper>
       <section className='promotion-area'>
@@ -112,9 +206,9 @@ export default function Home() {
           }}
         >
           {
-            Array(6).fill(0).map((item, index) => (
+            crew_list.map((item, index) => (
               <SwiperSlide key={index}>
-                <CrewCard/>
+                <CrewCard crew={item}/>
               </SwiperSlide>
             ))
           }
@@ -138,9 +232,9 @@ export default function Home() {
           }}
         >
           {
-            Array(6).fill(0).map((item, index) => (
+            race_list.map((item, index) => (
               <SwiperSlide key={index}>
-                <RaceCard/>
+                <RaceCard race={item}/>
               </SwiperSlide>
             ))
           }

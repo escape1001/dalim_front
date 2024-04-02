@@ -48,6 +48,10 @@ const Wrapper = styled.div`
         background-image: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0));
     }
 
+    .img-area .overlay .default-badge{
+        justify-self: flex-end;
+    }
+
     .text-area{
         padding:1rem;
         display: flex;
@@ -62,25 +66,11 @@ const Wrapper = styled.div`
     }
 `;
 
-export default function CrewCard() {
-    const crew = {
-        "id": 1,
-        "name": "러닝 크루 A",
-        "is_favorite": false,
-        "days": ["sat"],
-        "time": "07:00",
-        "thumbnail_image": "https://picsum.photos/200",
-        "member_count": 20,
-        "location": {
-            "city": "서울",
-            "district": "잠실"
-        },
-    }
-    
+export default function CrewCard({crew, is_personal=false}) {
     const [isFavorite, setIsFavorite] = useState(crew.is_favorite);
 
     // ["mon", "sat"]을 "월요일, 토요일"로 변경하는 함수
-    const getDayKor = (day) => {
+    const getDayKor = (days) => {
         const dayList = {
             mon: '월요일',
             tue: '화요일',
@@ -90,7 +80,8 @@ export default function CrewCard() {
             sat: '토요일',
             sun: '일요일',
         }
-        return day.map(d => dayList[d]).join(', ');
+
+        return days.map(d => dayList[d]).join(', ');
     };
 
     const toggleFavorite = (e) => {
@@ -108,20 +99,29 @@ export default function CrewCard() {
             <div className='img-area'>
                 <img src={crew.thumbnail_image} alt={crew.name}/>
                 <p className='overlay'>
-                    <span>{crew.member_count}명의 러너가 달리는 중</span>
-                    <button onClick={(e)=>{toggleFavorite(e);}}>
-                        {
-                            isFavorite ?
-                            <Icon.Star fill="true" size="2.5rem"/>:
-                            <Icon.Star size="2.5rem"/>
-                        }
-                    </button>
+                    {
+                        is_personal ?
+                        <>
+                            <span></span>
+                            <i className='default-badge yellow'>{crew.status}</i>
+                        </>:
+                        <>
+                            <span>{crew.member_count}명의 러너가 달리는 중</span>
+                            <button onClick={(e)=>{toggleFavorite(e);}}>
+                                {
+                                    isFavorite ?
+                                    <Icon.Star fill="true" size="2.5rem"/>:
+                                    <Icon.Star size="2.5rem"/>
+                                }
+                            </button>
+                        </>
+                    }
                 </p>
             </div>
             <div className='text-area'>
-                <i className='default-badge'>{crew.location.city}&lt;{crew.location.district}</i>
+                <i className='default-badge'>{crew.location_city}&lt;{crew.location_district}</i>
                 <strong>{crew.name}</strong>
-                <p>정기런 {getDayKor(crew.days)} / {crew.time}</p>
+                <p>정기런 {getDayKor(crew.meet_days)} / {crew.meet_time}</p>
             </div>
         </Wrapper>
     )
