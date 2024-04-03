@@ -60,7 +60,7 @@ export default function Header() {
                 </Link>
               </li>
               <li>
-                <Link href="/crews/admin">
+                <Link href="/admin/crew">
                   크루 관리(크루유저)
                 </Link>
               </li>
