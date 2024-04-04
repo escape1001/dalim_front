@@ -6,7 +6,7 @@ import styled from "styled-components";
 const Wrapper = styled.main`
 `;
 
-export default function CrewAdmin(){
+export default function CrewManageList(){
 
     useEffect(() => {
         // [TO DO] 서버에 요청을 보내서 crew_list 받아와야 함
@@ -14,9 +14,9 @@ export default function CrewAdmin(){
     
     return(
         <Wrapper>
-            <h2>크루 어드민</h2>
+            <h2>크루 관리</h2>
             <Link className="default-btn" href="/admin/crew/form">
-                크루 등록
+                크루 목록 / 등록버튼
             </Link>
         </Wrapper>
     );
