@@ -37,7 +37,7 @@ const Wrapper = styled.main`
   }
 
   section>ul>li{
-    width: calc((100% -2rem)/3);
+    width: calc((100% - 2rem)/3);
   }
 
   // 개별 스타일링

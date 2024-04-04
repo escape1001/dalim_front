@@ -168,13 +168,13 @@ export default function RaceCard({race, is_personal=false}) {
                             </span>
                             <button
                                 onClick={(e)=>{patchRecord(e);}}
-                                className='default-btn line small'
+                                className='txt-btn'
                             >
                                 내 기록 수정하기
                             </button>
                             <button
                                 onClick={(e)=>{deleteRecord(e);}}
-                                className='default-btn line small'
+                                className='txt-btn'
                             >
                                 내 기록 삭제하기
                             </button>
@@ -182,7 +182,7 @@ export default function RaceCard({race, is_personal=false}) {
                         <p className='record'>
                             <button
                                 onClick={(e)=>{addRecord(e);}}
-                                className='default-btn line small'
+                                className='txt-btn'
                             >
                                 내 기록 추가하기
                             </button>
