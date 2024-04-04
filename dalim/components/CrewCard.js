@@ -119,7 +119,7 @@ export default function CrewCard({crew, is_personal=false}) {
                 </p>
             </div>
             <div className='text-area'>
-                <i className='default-badge'>{crew.location_city}&lt;{crew.location_district}</i>
+                <i className='default-badge'>{crew.location_city}&gt;{crew.location_district}</i>
                 <strong>{crew.name}</strong>
                 <p>정기런 {getDayKor(crew.meet_days)} / {crew.meet_time}</p>
             </div>
