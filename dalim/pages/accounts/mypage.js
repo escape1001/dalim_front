@@ -433,7 +433,6 @@ export default function Mypage() {
         </div>
       </section>
 
-      {/* [TO DO : 해당 영역 자바라로 수정] */}
       {
         recordOpen &&
         <section>
