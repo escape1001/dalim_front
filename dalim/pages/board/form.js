@@ -14,10 +14,6 @@ const Wrapper = styled.main`
         padding-bottom: 3rem;
     }
 
-    input{
-        border-color: var(--color-grey);
-    }
-
     .btn-row{
         justify-content: flex-end;
     }
@@ -161,7 +157,7 @@ export default function PostForm(){
         <Wrapper className="center-content">
             <section>
                 <h2>글 {post_id ? "수정": "작성"}</h2>
-                <form className="default-form" onSubmit={postSubmit}>
+                <form className="default-form grey" onSubmit={postSubmit}>
                     <ul>
                         <li>
                             <label>카테고리</label>

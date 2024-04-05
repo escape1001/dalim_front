@@ -176,6 +176,12 @@ main{
   resize: none;
 }
 
+.default-form.grey input,
+.default-form.grey select,
+.default-form.grey textarea{
+  border-color: var(--color-grey);
+}
+
 .default-form .radio-group{
   display: flex;
   gap:1rem;

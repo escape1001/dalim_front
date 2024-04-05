@@ -13,10 +13,6 @@ const Wrapper = styled.main`
         font-size: var(--font-size-bigger);
         padding-bottom: 3rem;
     }
-
-    ul{
-
-    }
 `;
 
 export default function CrewForm(){
@@ -71,7 +67,7 @@ export default function CrewForm(){
         <Wrapper className="center-content">
             <section>
                 <h2>크루 {crew_id ? "수정" : "등록"}</h2>
-                <form className="default-form">
+                <form className="default-form grey">
                     <ul>
                         <li>
                             <label>크루명</label>
