@@ -13,3 +13,18 @@ export const convertDate = (date) => {
     }
     return `${year}/${month}/${day}`;
 };
+
+// ["mon", "sat"]을 "월요일, 토요일"로 변경하는 함수
+export const convertDayKorFull = (days) => {
+    const dayList = {
+        mon: '월요일',
+        tue: '화요일',
+        wed: '수요일',
+        thu: '목요일',
+        fri: '금요일',
+        sat: '토요일',
+        sun: '일요일',
+    }
+
+    return days.map(d => dayList[d]).join(', ');
+};

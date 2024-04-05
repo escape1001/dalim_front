@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import { useState } from 'react';
 import { useRouter } from "next/router";
 import { Icon } from './Icons';
+import { convertDayKorFull } from '../utils/convert';
 
 
 const Wrapper = styled.div`
@@ -69,21 +70,6 @@ const Wrapper = styled.div`
 export default function CrewCard({crew, is_personal=false}) {
     const [isFavorite, setIsFavorite] = useState(crew.is_favorite);
 
-    // ["mon", "sat"]을 "월요일, 토요일"로 변경하는 함수
-    const getDayKor = (days) => {
-        const dayList = {
-            mon: '월요일',
-            tue: '화요일',
-            wed: '수요일',
-            thu: '목요일',
-            fri: '금요일',
-            sat: '토요일',
-            sun: '일요일',
-        }
-
-        return days.map(d => dayList[d]).join(', ');
-    };
-
     const toggleFavorite = (e) => {
         console.log(e.target);
         e.stopPropagation();
@@ -121,7 +107,7 @@ export default function CrewCard({crew, is_personal=false}) {
             <div className='text-area'>
                 <i className='default-badge'>{crew.location_city}&gt;{crew.location_district}</i>
                 <strong>{crew.name}</strong>
-                <p>정기런 {getDayKor(crew.meet_days)} / {crew.meet_time}</p>
+                <p>정기런 {convertDayKorFull(crew.meet_days)} / {crew.meet_time}</p>
             </div>
         </Wrapper>
     )
