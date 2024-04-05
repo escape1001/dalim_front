@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { AuthContext } from '../../context/authContext';
+import { location_city_list } from '../../utils/constants';
 
 
 const Wrapper = styled.main`
@@ -195,14 +196,11 @@ export default function Signup() {
             <label htmlFor='location_city'>활동지역</label>
             <select name="location_city" required>
               <option value=''>대분류 선택</option>
-              <option value='seoul'>서울</option>
-              <option value='gyeonggi'>경기</option>
-              <option value='gangwon'>강원</option>
-              <option value='chungcheong'>충청</option>
-              <option value='jeolla'>전라</option>
-              <option value='gyeongsang'>경상</option>
-              <option value='jeju'>제주</option>
-              <option value='etc'>기타</option>
+              {
+                location_city_list.map((city, index) => (
+                    <option key={index} value={city.value}>{city.label}</option>
+                ))                                    
+              }
             </select>
             <input title="location_district" name="location_district" maxLength={30}/>
           </li>
