@@ -188,7 +188,7 @@ export default function Home() {
         "thumbnail_image": "이미지 path",
         "is_favorite": false,
       },
-  ];
+    ];
 
   return (
     <Wrapper>

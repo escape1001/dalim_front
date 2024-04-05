@@ -254,7 +254,7 @@ export default function RaceDetail(){
                 isFavorite={isFavorite}
                 setIsFavorite={setIsFavorite}
                 name={race?.title}
-                badgeTxt={`${race?.d_day ? `D-${race?.d_day}` : ""} ${race?.rag_status}`}
+                badgeTxt={`${race?.d_day ? `D-${race?.d_day}` : ""} ${race?.reg_status}`}
                 imgUrl={race?.thumbnail_image}
                 favApiPath={`/races/${race_id}/favorite/`}
             />
