@@ -129,7 +129,7 @@ export default function RaceCard({race, is_personal=false}) {
     return (
         <Wrapper onClick={()=>{router.push(`/race/${race.id}`)}}>
             <div className='img-area'>
-                <img src={race.thumbnail_image} alt={race.name}/>
+                <img src={race.thumbnail_image} alt={race.title}/>
                 <p className='overlay'>
                     {
                         !is_personal &&
@@ -141,14 +141,22 @@ export default function RaceCard({race, is_personal=false}) {
                             }
                         </button>
                     }
-                    <i className="default-badge">{race.status}{race.d_day ? ` D-${race.d_day}`: ""}</i>
+                    <i className="default-badge">{race.reg_status}{race.d_day ? ` D-${race.d_day}`: ""}</i>
                 </p>
             </div>
             <div className='text-area'>
-                <strong>{race.name}</strong>
-                <p>일시 : {race.start_date} ~ {race.end_date}</p>
+                <strong>{race.title}</strong>
+                <p>
+                    <b>일시</b> {race.start_date} ~ {race.end_date}
+                </p>
+                <p>
+                    <b>접수</b> {race.reg_start_date} ~ {race.reg_end_date}
+                </p>
+                <p>
+                    <b>장소</b> {race.location}
+                </p>
                 <div>
-                    종목 :
+                    <b>종목</b>&nbsp;
                     <ul className="course-list">
                         {
                             race.courses.map((course, index) => (

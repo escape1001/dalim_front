@@ -173,37 +173,33 @@ export default function RaceDetail(){
             "id": 1,
             "title": "양천구마라톤",
             "organizer":"양천구청",
-            "rag_status": "접수중",
+            "reg_status": "접수중",
             "d_day":12,
-            "location": "서울특별시",
+            "location": "서울 양천운동장",
             "fees":10000,
             "start_date": "2024/05/30",
             "end_date": "2024/05/31",
             "reg_start_date": "2024/04/15",
             "reg_end_date": "2024/05/27",
-            "course": ["Full", "Half", "10km"],
+            "courses": ["Full", "Half", "10km"],
             "description": "양천구청 주관 하프 마라톤 대회",
-            "thumbnail_image": "https://picsum.photos/200",
-            "register_url": "https://example.com/running_crew",
+            "thumbnail_image": "이미지 path",
+            "register_url": "대회 홈페이지 등록 링크",
             "is_favorite": false,
         };
         const review_mock = [
             {
                 "id": 1,
-                "author": {
-                    "id": 1,
-                    "nickname": "닉네임",
-                },
+                "author_id": 1,
+                "author_nickname": "닉네임",
                 "contents": "좋은 대회입니다!",
                 "created_at": "2023-06-01T10:00:00Z",
                 "updated_at": "2023-06-01T10:00:00Z"
             },
             {
                 "id": 2,
-                "author": {
-                    "id": 2,
-                    "nickname": "닉네임",
-                },
+                "author_id": 2,
+                "author_nickname": "닉네임",
                 "contents": "좋은 대회아상입니다!",
                 "created_at": "2024-06-01T10:00:00Z",
                 "updated_at": "2024-06-01T10:00:00Z"
@@ -287,7 +283,7 @@ export default function RaceDetail(){
                             <b>종목</b>
                             <ul>
                                 {
-                                    race?.course.map((course, index) => (
+                                    race?.courses.map((course, index) => (
                                         <li className="default-badge yellow" key={index}>{course}</li>
                                     ))
                                 }
@@ -326,9 +322,9 @@ export default function RaceDetail(){
                             return (
                                 <li key={index}>
                                     <div className="user-area">
-                                        <b>{review.author.nickname}님의 후기</b>
+                                        <b>{review.author_nickname}님의 후기</b>
                                         {
-                                            review.author.id === user?.pk &&
+                                            review.author_id === user?.pk &&
                                             <p>
                                                 <button
                                                     onClick={()=>{patchReview(review.id);}}

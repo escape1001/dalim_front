@@ -192,20 +192,16 @@ export default function CrewDetail(){
         const review_mock = [
             {
                 "id": 1,
-                "author": {
-                    "id": 1,
-                    "nickname": "닉네임",
-                },
+                "author_id": 1,
+                "author_nickname": "닉네임",
                 "contents": "좋은 크루입니다!",
                 "created_at": "2023-06-01T10:00:00Z",
                 "updated_at": "2023-06-01T10:00:00Z"
             },
             {
                 "id": 2,
-                "author": {
-                    "id": 2,
-                    "nickname": "닉네임",
-                },
+                "author_id": 1,
+                "author_nickname": "닉네임",
                 "contents": "좋은 크루아상입니다!",
                 "created_at": "2024-06-01T10:00:00Z",
                 "updated_at": "2024-06-01T10:00:00Z"
@@ -338,9 +334,9 @@ export default function CrewDetail(){
                             return (
                                 <li key={index}>
                                     <div className="user-area">
-                                        <b>{review.author.nickname}님의 후기</b>
+                                        <b>{review.author_nickname}님의 후기</b>
                                         {
-                                            review.author.id === user?.pk &&
+                                            review.author_id === user?.pk &&
                                             <p>
                                                 <button
                                                     onClick={()=>{patchReview(review.id);}}
