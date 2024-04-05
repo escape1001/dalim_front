@@ -151,6 +151,7 @@ main{
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
   gap:1rem;
 }
 
@@ -158,6 +159,10 @@ main{
   padding-right: 2rem;
   min-width: 8rem;
   font-weight: 800;
+}
+
+.default-form label.grow{
+  flex-grow: 1;
 }
 
 .default-form input,
@@ -193,6 +198,22 @@ main{
 
 .default-form .radio-group input{
   display: none;
+}
+
+.default-form .checkbox-group{
+  flex-grow: 1;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.default-form .checkbox-group label{
+  font-weight: 400;
+  padding-left: .5rem;
+}
+
+.default-form .btn-area{
+  justify-content: flex-end;
 }
 
 .default-table{

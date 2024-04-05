@@ -18,18 +18,6 @@ const Wrapper = styled.main`
         border-color: var(--color-grey);
     }
 
-    .category-list{
-        flex-grow: 1;
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-    }
-
-    .category-list label{
-        font-weight: 400;
-        padding-left: .5rem;
-    }
-
     .btn-row{
         justify-content: flex-end;
     }
@@ -177,7 +165,7 @@ export default function PostForm(){
                     <ul>
                         <li>
                             <label>카테고리</label>
-                            <ul className="category-list">
+                            <ul className="checkbox-group">
                                 {
                                     // staff만 post_classification 작성 가능
                                     // post.post_classification에 해당하는 값은 체크되어 있어야 함
