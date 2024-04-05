@@ -135,14 +135,14 @@ main{
   color: var(--color-dark);
 }
 
-.default-form ul{
+.default-form>ul{
   display: flex;
   flex-direction: column;
   gap:2rem;
   font-size: var(--font-size-big);
 }
 
-.default-form li{
+.default-form>ul>li{
   display: flex;
   justify-content: center;
   align-items: center;
