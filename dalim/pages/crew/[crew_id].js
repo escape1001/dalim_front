@@ -4,6 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import ImgTitleSection from "../../components/ImgTitleSection";
 import { AuthContext } from "../../context/authContext";
+import WeekList from "../../components/WeekList";
 
 
 const Wrapper = styled.main`
@@ -213,22 +214,6 @@ export default function CrewDetail(){
         // 해당하는 크루 정보 없는 경우 404 페이지로 이동
     },[crew_id])
 
-    const parseWeekList = (days) => {
-        const dayList = {
-            mon: '월',
-            tue: '화',
-            wed: '수',
-            thu: '목',
-            fri: '금',
-            sat: '토',
-            sun: '일',
-        }
-
-        return Object.entries(dayList).map(([key, value], index) => {
-            return <li key={index} className={days?.includes(key) ? "on" : ""}>{value}</li>
-        })
-    };
-
     // API관련 함수
     const joinCrew = () => {
         // [TO DO] POST /crews/<int:crew_id>/join/
@@ -292,9 +277,7 @@ export default function CrewDetail(){
                             <span>{crew?.meet_time}</span>
                         </p>
                         <ul className="week-list">
-                            {
-                                parseWeekList(crew?.meet_days)
-                            }
+                            <WeekList days={crew?.meet_days} />
                         </ul>
                     </div>
                     <div className="bottom-area">
