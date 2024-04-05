@@ -135,6 +135,11 @@ main{
   color: var(--color-dark);
 }
 
+.default-badge.grey{
+  background-color: var(--color-light-grey);
+  color: var(--color-dark);
+}
+
 .default-form>ul{
   display: flex;
   flex-direction: column;

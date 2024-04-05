@@ -60,6 +60,7 @@ export default function ImgTitleSection({isFavorite, setIsFavorite, name, badgeT
                 <div className='overlay'>
                     <p className="center-content">
                         {
+                            isFavorite !== null &&
                             <button onClick={(e)=>{toggleFavorite(e);}}>
                                 {
                                     isFavorite ?
