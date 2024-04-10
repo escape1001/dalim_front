@@ -33,5 +33,5 @@ export const convertDayKorFull = (days) => {
 
 // 지역명 "seoul"을 "서울"로 변경하는 함수
 export const convertLocationKor = (location) => {
-    return location_city_list.find(city => city.value === location).label;
+    return location_city_list.find(city => city.value === location)?.label;
 };
