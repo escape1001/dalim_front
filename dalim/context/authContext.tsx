@@ -16,7 +16,7 @@ const AuthProvider = ({ children }) => {
     }
 
     const login = async (data) => {
-        const url = process.env.NEXT_PUBLIC_API_URL + "accounts/login/";
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/login/`;
         const response = await fetch(url, {
             method: "POST",
             body: data,
@@ -42,7 +42,7 @@ const AuthProvider = ({ children }) => {
     };
 
     const signup = async (data) => {
-        const url = process.env.NEXT_PUBLIC_API_URL + "accounts/signup/";
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/signup/`;
         const response = await fetch(url, {
             method: "POST",
             body: data,
@@ -57,7 +57,7 @@ const AuthProvider = ({ children }) => {
     };
 
     const refresh_token = async () => {
-        const url = process.env.NEXT_PUBLIC_API_URL + "accounts/token/refresh/";
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/token/refresh/`;
         const data = {refresh : localStorage.getItem('dalim_refresh')};
         const response = await fetch(url, {
             method: "POST",
@@ -80,7 +80,7 @@ const AuthProvider = ({ children }) => {
     };
 
     const logout = async () => {
-        const url = process.env.NEXT_PUBLIC_API_URL + "accounts/logout/";
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/logout/`;
         const response = await fetch(url, {
             method: "POST",
             headers: {
