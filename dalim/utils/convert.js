@@ -1,3 +1,5 @@
+import {location_city_list} from './constants';
+
 // 2024-10-20 16:00:00, 2024/12/23.. 어떤 형식의 날짜가 들어와도 "2024/10/20" 형식으로 변환
 export const convertDate = (date) => {
     const _date = new Date(date);
@@ -27,4 +29,9 @@ export const convertDayKorFull = (days) => {
     }
 
     return days.map(d => dayList[d]).join(', ');
+};
+
+// 지역명 "seoul"을 "서울"로 변경하는 함수
+export const convertLocationKor = (location) => {
+    return location_city_list.find(city => city.value === location).label;
 };

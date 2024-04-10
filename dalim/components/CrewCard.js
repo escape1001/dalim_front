@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { useState } from 'react';
 import { useRouter } from "next/router";
 import { Icon } from './Icons';
-import { convertDayKorFull } from '../utils/convert';
+import { convertDayKorFull, convertLocationKor } from '../utils/convert';
 
 
 const Wrapper = styled.div`
@@ -105,7 +105,7 @@ export default function CrewCard({crew, is_personal=false}) {
                 </p>
             </div>
             <div className='text-area'>
-                <i className='default-badge'>{crew.location_city}&gt;{crew.location_district}</i>
+                <i className='default-badge'>{convertLocationKor(crew.location_city)}&gt;{crew.location_district}</i>
                 <strong>{crew.name}</strong>
                 <p>정기런 {convertDayKorFull(crew.meet_days)} / {crew.meet_time}</p>
             </div>
