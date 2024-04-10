@@ -77,37 +77,17 @@ const Wrapper = styled.main`
 
 export default function CrewList(){
     const [crewList, setCrewList] = useState([]);
+    const [query, setQuery] = useState("");
+
+    const getCrewList = async (q) => {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/crews/${q? q : ""}`);
+        const data = await response.json();
+        setCrewList(data);
+    };
 
     useEffect(() => {
-        // [TO DO] 서버에 요청을 보내서 crew_list 받아와야 함
-        // GET /crews/
-        const crew_list_mock = [
-                {
-                    id : 1,
-                    name : "멋있는 크루",
-                    member_count : 5,
-                    thumbnail_image : "https://example.com/image.jpg",
-                    is_favorite : false,
-                    location_city : "서울",
-                    location_district : "강남구",
-                    meet_days : ["mon", "wed", "fri"],
-                    meet_time : "07:00 PM",
-                },
-                {
-                    id : 1,
-                    name : "멋있는 크루",
-                    member_count : 5,
-                    thumbnail_image : "https://example.com/image.jpg",
-                    is_favorite : false,
-                    location_city : "서울",
-                    location_district : "강남구",
-                    meet_days : ["mon", "wed", "fri"],
-                    meet_time : "07:00 PM",
-                },
-            ];
-
-        setCrewList(crew_list_mock);
-    },[])
+        query ? getCrewList("?" + query) : getCrewList();
+    },[query])
 
     const searchSubmit = (e) => {
         e.preventDefault();
@@ -118,10 +98,10 @@ export default function CrewList(){
         const query_string = (search ? `search=${search}` : "") + (location_city ? `&location_city=${location_city}` : "") + (meet_days ? `&meet_days=${meet_days}` : "");
 
         if(query_string){
-            // [TO DO] 서버에 요청을 보내서 검색 결과를 받아와야 함
-            // GET /crews/?search=검색어&location_city=지역&meet_days=요일
+            setQuery(query_string);
             console.log(query_string);
-            //setCrewList(검색결과);
+        } else {
+            setQuery("");
         }
     };
     
@@ -204,7 +184,7 @@ export default function CrewList(){
             <section>
                 <h2>크루 리스트</h2>
                 <ul>
-                    {crewList.map((crew, index) => (
+                    {crewList?.map((crew, index) => (
                         <li key={index}>
                             <CrewCard crew={crew}/>
                         </li>
