@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import CrewCard from "../../components/CrewCard";
+import { AuthContext } from "../../context/authContext";
 
 
 const Wrapper = styled.main`
@@ -76,11 +77,28 @@ const Wrapper = styled.main`
 `;
 
 export default function CrewList(){
+    const {user, refreshToken} = useContext(AuthContext); 
     const [crewList, setCrewList] = useState([]);
     const [query, setQuery] = useState("");
 
     const getCrewList = async (q) => {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/crews/${q? q : ""}`);
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/${q? q : ""}`;
+        let headers = {};
+        if (user) {
+            headers['Authorization'] = `Bearer ${localStorage.getItem('dalim_access')}`;
+        }
+
+        const response = await fetch(url, {
+            method: "GET",
+            headers: headers,
+        });
+
+        if (user && response.status === 401) {
+            console.log("토큰 재요청");
+            await refreshToken();
+            await getCrewList();
+        }
+        
         const data = await response.json();
         setCrewList(data);
     };
