@@ -56,7 +56,7 @@ const AuthProvider = ({ children }) => {
         }
     };
 
-    const refresh_token = async () => {
+    const refreshToken = async () => {
         const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/token/refresh/`;
         const data = {refresh : localStorage.getItem('dalim_refresh')};
         const response = await fetch(url, {
@@ -96,7 +96,7 @@ const AuthProvider = ({ children }) => {
             router.push("/");
         } else if (response.status === 401) {
             console.log("토큰 재요청");
-            await refresh_token();
+            await refreshToken();
             await logout();
         }else {
             alert("로그아웃 실패");
@@ -104,6 +104,12 @@ const AuthProvider = ({ children }) => {
         }
     };
 
+    const token = () => {
+        if (typeof window === "undefined"){
+            const access = localStorage.getItem('dalim_access');
+            return access;
+        }
+    };
 
 return (
     <AuthContext.Provider value={{
@@ -112,7 +118,8 @@ return (
             login,
             logout,
             signup,
-            refresh_token,
+            refreshToken,
+            token,
     }}>
         {children}
     </AuthContext.Provider>
