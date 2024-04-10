@@ -5,6 +5,7 @@ import styled from "styled-components";
 import ImgTitleSection from "../../components/ImgTitleSection";
 import { AuthContext } from "../../context/authContext";
 import WeekList from "../../components/WeekList";
+import { convertLocationKor } from "../../utils/convert";
 
 
 const Wrapper = styled.main`
@@ -166,55 +167,85 @@ const Wrapper = styled.main`
 `;
 
 export default function CrewDetail(){
-    const {user} = useContext(AuthContext);
-    const { crew_id } = useRouter().query;
+    const {user, refreshToken} = useContext(AuthContext);
+    const router = useRouter();
+    const { crew_id } = router.query;
     const [crew, setCrew] = useState(null);
     const [reviews, setReviews] = useState([]);
-    const [isFavorite, setIsFavorite] = useState(crew?.is_favorite);
+    const [isFavorite, setIsFavorite] = useState();
+
+    const getCrewInfo = async () => {
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/${crew_id}`;
+        let headers = {};
+
+        if (user) {
+            headers['Authorization'] = `Bearer ${localStorage.getItem('dalim_access')}`;
+        }
+
+        const response = await fetch(url, {
+            method: "GET",
+            headers: headers,
+        });
+        
+        if (response.status === 404){
+            alert("해당하는 크루 정보가 없습니다.");
+            router.push("/404");
+        } else if (user && response.status === 401) {
+            console.log("토큰 재요청");
+            await refreshToken();
+            await getCrewInfo();
+        }
+
+        const data = await response.json();
+        setCrew(data);
+        setIsFavorite(data.is_favorite);
+    };
+
+    const getReviews = async () => {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/crews/${crew_id}/reviews/`);
+        const data = await response.json();
+        console.log("reviews:");
+        console.log(data);
+        setReviews(data);
+    };
 
     useEffect(() => {
-        // [TO DO] 서버에 요청을 보내서 crew_id에 해당하는 크루 정보를 가져와야 함
-        // GET /crews/<int:crew_id>/
-        // 헤더 토큰 필요
-        const crew_mock = {
-            "id": 1,
-            "name": "멋있는 크루",
-            "location_city": "서울특별시",
-            "location_district": "강남구",
-            "meet_days": ["mon", "wed", "fri"],
-            "meet_time": "07:00 PM",
-            "member_count": 5,
-            "description": "함께 달리는 런닝 크루입니다.",
-            "thumbnail_image": "https://picsum.photos/200",
-            "sns_link": "https://example.com/running_crew",
-            "is_favorite": false,
-            "status" : "모집중",
-        };
-        const review_mock = [
-            {
-                "id": 1,
-                "author_id": 1,
-                "author_nickname": "닉네임",
-                "contents": "좋은 크루입니다!",
-                "created_at": "2023-06-01T10:00:00Z",
-                "updated_at": "2023-06-01T10:00:00Z"
-            },
-            {
-                "id": 2,
-                "author_id": 1,
-                "author_nickname": "닉네임",
-                "contents": "좋은 크루아상입니다!",
-                "created_at": "2024-06-01T10:00:00Z",
-                "updated_at": "2024-06-01T10:00:00Z"
-            }
-        ];
         // 크루 정보를 받아온 후에 crew state에 저장
-        setCrew(crew_mock);
-        setReviews(review_mock);
-        // 해당하는 크루 정보 없는 경우 404 페이지로 이동
+        if (crew_id){
+            getCrewInfo();
+            getReviews();
+        }
     },[crew_id])
 
     // API관련 함수
+    const toggleFavorite = async () => {
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/${crew_id}/favorite/`;
+        let headers = {};
+
+        if (!user){
+            alert("로그인 후 이용해주세요.");
+            return;
+        } else {
+            headers['Authorization'] = `Bearer ${localStorage.getItem('dalim_access')}`;
+        }
+
+        const response = await fetch(url, {
+            method: "POST",
+            headers: headers,
+            data: {
+                user_id: user.pk,
+            }
+        });
+
+        if (response.status === 401){
+            console.log("토큰 재요청");
+            await refreshToken();
+            await toggleFavorite();
+        } else if (response.status === 200){
+            setIsFavorite(!isFavorite);
+        }
+    };
+
     const joinCrew = () => {
         // [TO DO] POST /crews/<int:crew_id>/join/
         // 헤더 토큰 필요
@@ -261,9 +292,9 @@ export default function CrewDetail(){
         <Wrapper>
             <ImgTitleSection
                 isFavorite={isFavorite}
-                setIsFavorite={setIsFavorite}
+                toggleFavorite={toggleFavorite}
                 name={crew?.name}
-                badgeTxt={`${crew?.location_city} > ${crew?.location_district}`}
+                badgeTxt={`${convertLocationKor(crew?.location_city)} > ${crew?.location_district}`}
                 imgUrl={crew?.thumbnail_image}
                 favApiPath={`/crews/${crew_id}/favorite/`}
             />
@@ -319,7 +350,7 @@ export default function CrewDetail(){
                                     <div className="user-area">
                                         <b>{review.author_nickname}님의 후기</b>
                                         {
-                                            review.author_id === user?.pk &&
+                                            (user && review.author_id === user?.pk) &&
                                             <p>
                                                 <button
                                                     onClick={()=>{patchReview(review.id);}}

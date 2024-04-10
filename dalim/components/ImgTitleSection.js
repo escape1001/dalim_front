@@ -43,13 +43,13 @@ const Wrapper = styled.section`
     }
 `;
 
-export default function ImgTitleSection({isFavorite, setIsFavorite, name, badgeTxt, imgUrl, favApiPath}){
-    const toggleFavorite = (e) => {
+export default function ImgTitleSection({isFavorite, toggleFavorite, name, badgeTxt, imgUrl, favApiPath}){
+    const toggleBtn = (e) => {
         e.stopPropagation();
         
         // [TO DO] 여기서 서버에 요청을 보내서 is_favorite를 업데이트해야 함
         // POST favApiPath
-        setIsFavorite(!isFavorite);
+        toggleFavorite(!isFavorite);
     }
     
     return(
@@ -61,7 +61,7 @@ export default function ImgTitleSection({isFavorite, setIsFavorite, name, badgeT
                     <p className="center-content">
                         {
                             isFavorite !== null &&
-                            <button onClick={(e)=>{toggleFavorite(e);}}>
+                            <button onClick={(e)=>{toggleBtn(e);}}>
                                 {
                                     isFavorite ?
                                     <Icon.Star fill="true" size="4rem"/>:
