@@ -126,7 +126,14 @@ export default function CrewManageDetail(){
             "email": "minsu@example.com",
             "updated_at": "2023-01-01T00:00:00Z",
             "status": "미승인"
-            }
+            },
+            {
+            "id": 3,
+            "username": "박민수",
+            "email": "minsu@example.com",
+            "updated_at": "2023-01-01T00:00:00Z",
+            "status": "탈퇴"
+            },
         ];
         setCrew(crew_mock);
         setMemberList(member_list_mock);
