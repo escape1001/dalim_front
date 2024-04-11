@@ -10,14 +10,16 @@ export const location_city_list = [
 ];
 
 export let meet_time_list = [];
-for (let hour = 0; hour < 24; hour++) {
-    for (let minute of [0, 30]) {
-        let period = hour < 12 ? "AM" : "PM";
-        let displayHour = hour % 12 || 12;
-        let displayMinute = minute.toString().padStart(2, '0');
-        let timeString = `${displayHour}:${displayMinute} ${period}`;
-        meet_time_list.push(timeString);
-    }
+    for (let hour = 0; hour < 24; hour++) {
+        for (let minute of [0, 30]) {
+            let displayHour24 = hour.toString().padStart(2, '0');
+            let displayHour12 = hour % 12 || 12;
+            let displayMinute = minute.toString().padStart(2, '0');
+            let period = hour < 12 ? "AM" : "PM";
+            let value = `${displayHour24}:${displayMinute} ${period}`;
+            let label = `${displayHour12}:${displayMinute} ${period}`;
+            meet_time_list.push({value, label});
+        }
 }
 
 export const week_list = [
