@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import Empty from "../../../components/Empty";
-import { convertDayKorFull } from "../../../utils/convert";
+import { convertDayKorFull, convertLocationKor } from "../../../utils/convert";
+import { AuthContext } from "../../../context/authContext";
 
 
 const Wrapper = styled.main`
@@ -69,39 +70,36 @@ const Wrapper = styled.main`
 `;
 
 export default function CrewManageList(){
+    const {user, refreshToken} = useContext(AuthContext);
     const [crewList, setCrewList] = useState([]);
 
+    const getCrewList = async (q) => {
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/manage//`;
+        const headers = {
+            "Authorization": `Bearer ${localStorage.getItem('dalim_access')}`
+        };
+
+        const response = await fetch(url, {
+            method: "GET",
+            headers: headers,
+        });
+
+        if (user && response.status === 401) {
+            console.log("토큰 재요청");
+            await refreshToken();
+            await getCrewList();
+        }
+        
+        const data = await response.json();
+        setCrewList(data);
+    };
+
     useEffect(() => {
-        // [TO DO] 서버에 요청을 보내서 crew_list 받아와야 함
-        // GET /crews/manage/
-        // 헤더 토큰 필요
-        const crew_list_mock = [
-            {
-            "id": 1,
-            "name": "멋있는 크루",
-            "member_count": 5,
-            "thumbnail_image": "https://picsum.photos/200",
-            "is_favorite": false,
-            "location_city": "서울특별시",
-            "location_district": "강남구",
-            "meet_days": ["mon", "wed", "fri"],
-            "meet_time": "07:00 PM",
-            "is_opened" : "모집중",
-            },
-            {
-            "id": 2,
-            "name": "크루아상",
-            "member_count": 8,
-            "thumbnail_image": "https://picsum.photos/200",
-            "is_favorite": false,
-            "location_city": "부산광역시",
-            "location_district": "해운대구",
-            "meet_days": ["sat", "sun"],
-            "meet_time": "08:00 AM",
-            "is_opened" : "모집중",
-            }
-        ];
-        setCrewList(crew_list_mock);
+        if (user.user_type !== "crew"){
+            alert("크루 관리 페이지는 크루만 접근 가능합니다.");
+        } else{
+            getCrewList();
+        }
     },[])
     
     return(
@@ -119,8 +117,10 @@ export default function CrewManageList(){
                                             <img src={crew.thumbnail_image} alt=""/>
                                         </p>
                                         <div className="text-area">
-                                            <strong>{crew.name}</strong>
-                                            <p className="default-badge">{crew.location_city} &gt; {crew.location_district}</p>
+                                            <p>
+                                                <strong>{crew.name}</strong> - {crew.is_opened}
+                                            </p>
+                                            <p className="default-badge">{convertLocationKor(crew.location_city)} &gt; {crew.location_district}</p>
                                             <p><b>정기런 :</b> {convertDayKorFull(crew.meet_days)} {crew.meet_time}</p>
                                             <p><b>멤버 수 :</b> {crew.member_count}</p>
                                         </div>
