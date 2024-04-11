@@ -202,7 +202,7 @@ export default function CrewDetail(){
     };
 
     const getReviews = async () => {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/crews/${crew_id}/reviews/`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/crews/${crew_id}/reviews//`);
         const data = await response.json();
         setReviews(data);
     };
@@ -272,7 +272,7 @@ export default function CrewDetail(){
         const mod_contents = prompt("수정할 덧글 내용을 입력해주세요");
 
         if (mod_contents){
-            const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/${crew_id}/reviews/${review_id}/`;
+            const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/${crew_id}/reviews//${review_id}/`;
             const headers = {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${localStorage.getItem("dalim_access")}`,                
@@ -304,7 +304,7 @@ export default function CrewDetail(){
         const isDelete = confirm("정말로 삭제하시겠습니까?");
         
         if(isDelete){
-            const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/${crew_id}/reviews/${review_id}/`;
+            const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/${crew_id}/reviews//${review_id}/`;
             const headers = {
                 "Authorization": `Bearer ${localStorage.getItem("dalim_access")}`,
             };
@@ -331,7 +331,7 @@ export default function CrewDetail(){
 
         const contents = e.target.querySelector("textarea").value;
         if (contents){
-            const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/${crew_id}/reviews/`;
+            const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/${crew_id}/reviews//`;
             const headers = {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${localStorage.getItem("dalim_access")}`,                
@@ -401,9 +401,11 @@ export default function CrewDetail(){
                 </aside>
                 <div className="crew-description">
                     <p className="txt-b">크루 소개</p>
-                    <pre>
-                        {crew?.description}
-                    </pre>
+                    <div
+                        dangerouslySetInnerHTML={{
+                            __html: crew?.description || ""
+                        }}
+                    />
 
                     <p>
                         크루 SNS:
