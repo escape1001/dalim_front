@@ -107,6 +107,12 @@ main{
   padding:1rem;
 }
 
+.default-btn:disabled{
+  background-color: var(--color-grey);
+  cursor: initial;
+  pointer-events: none;
+}
+
 .txt-btn{
   color: var(--color-navy);
 }

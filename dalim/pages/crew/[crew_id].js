@@ -179,7 +179,7 @@ export default function CrewDetail(){
         let headers = {};
 
         if (user) {
-            headers['Authorization'] = `Bearer ${localStorage.getItem('dalim_access')}`;
+            headers["Authorization"] = `Bearer ${localStorage.getItem("dalim_access")}`;
         }
 
         const response = await fetch(url, {
@@ -204,13 +204,10 @@ export default function CrewDetail(){
     const getReviews = async () => {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/crews/${crew_id}/reviews/`);
         const data = await response.json();
-        console.log("reviews:");
-        console.log(data);
         setReviews(data);
     };
 
     useEffect(() => {
-        // 크루 정보를 받아온 후에 crew state에 저장
         if (crew_id){
             getCrewInfo();
             getReviews();
@@ -226,7 +223,7 @@ export default function CrewDetail(){
             alert("로그인 후 이용해주세요.");
             return;
         } else {
-            headers['Authorization'] = `Bearer ${localStorage.getItem('dalim_access')}`;
+            headers["Authorization"] = `Bearer ${localStorage.getItem("dalim_access")}`;
         }
 
         const response = await fetch(url, {
@@ -246,42 +243,119 @@ export default function CrewDetail(){
         }
     };
 
-    const joinCrew = () => {
-        // [TO DO] POST /crews/<int:crew_id>/join/
-        // 헤더 토큰 필요
-        // 응답 메세지에 따라 alert 해주기
-        alert("크루 가입이 신청되었습니다.");
+    const joinCrew = async () => {
+        if (!user){
+            alert("로그인 후 이용해주세요.");
+            router.push("/accounts/login");
+        }
+        
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/${crew_id}/join/`;
+        const headers = {
+            "Authorization": `Bearer ${localStorage.getItem("dalim_access")}`,                
+        };
+        const response = await fetch(url, {
+            method: "POST",
+            headers: headers,
+        });
+
+        if (response.status === 401){
+            console.log("토큰 재요청");
+            refreshToken();
+            joinCrew();
+        }
+
+        const data = await response.json();
+        alert(data.message || data.error);
     };
 
-    const patchReview = (review_id) => {
-        // 수정할 내용을 prompt로 입력받기
+    const patchReview = async(review_id) => {
         const mod_contents = prompt("수정할 덧글 내용을 입력해주세요");
 
         if (mod_contents){
-            // [TO DO] PATCH /crews/<int:crew_id>/reviews/<int:review_id>/
-            // 헤더 토큰 필요
-            // 응답 제대로 오면 setReviews
+            const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/${crew_id}/reviews/${review_id}/`;
+            const headers = {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("dalim_access")}`,                
+            };
+            const data = {
+                contents: mod_contents,
+            };
+            const response = await fetch(url, {
+                method: "PATCH",
+                headers: headers,
+                body: JSON.stringify(data),
+            });
+
+            if (response.status === 401){
+                console.log("토큰 재요청");
+                refreshToken();
+                patchReview(review_id);
+            } else if (response.status === 200){
+                getReviews();
+            } else {
+                alert("수정에 실패했습니다.");
+                console.log(response);
+            }
+
         }
     };
 
-    const deleteReview = (review_id) => {
-        // confirm으로 삭제 여부 확인
+    const deleteReview = async (review_id) => {
         const isDelete = confirm("정말로 삭제하시겠습니까?");
         
         if(isDelete){
-            // [TO DO] DELETE /crews/<int:crew_id>/reviews/<int:review_id>/
-            // 200? 204? 정상 응답 오면 setReviews
+            const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/${crew_id}/reviews/${review_id}/`;
+            const headers = {
+                "Authorization": `Bearer ${localStorage.getItem("dalim_access")}`,
+            };
+            const response = await fetch(url, {
+                method: "DELETE",
+                headers: headers,
+            });
+
+            if (response.status === 401){
+                console.log("토큰 재요청");
+                refreshToken();
+                deleteReview(review_id);
+            } else if (response.status === 204){
+                getReviews();
+            } else {
+                alert("삭제에 실패했습니다.");
+                console.log(response);
+            }
         }
     };
 
-    const addReview = (e) => {
+    const addReview = async (e) => {
         e.preventDefault();
 
         const contents = e.target.querySelector("textarea").value;
         if (contents){
-            // [TO DO] POST /crews/<int:crew_id>/reviews/
-            // 헤더 토큰 필요
-            // 응답 제대로 오면 reload해버려~
+            const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/${crew_id}/reviews/`;
+            const headers = {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("dalim_access")}`,                
+            };
+            const data = {
+                contents: contents,
+            };
+            const response = await fetch(url, {
+                method: "POST",
+                headers: headers,
+                body: JSON.stringify(data),
+            });
+
+            if (response.status === 401){
+                console.log("토큰 재요청");
+                refreshToken();
+                addReview(e);
+            } else if (response.status === 403){
+                alert("크루 가입 완료 후 후기를 남길 수 있습니다.");
+            } else if (response.status === 201){
+                e.target.querySelector("textarea").value = "";
+                getReviews();
+            }
+
         } else {
             alert("내용을 입력해주세요.");
         }
@@ -317,7 +391,11 @@ export default function CrewDetail(){
                             <span>{crew?.member_count}명</span>
                         </p>
                         <p>
-                            <button onClick={joinCrew} className="default-btn">크루 가입하기</button>
+                            {
+                                crew?.is_opened ?
+                                <button onClick={joinCrew} className="default-btn">크루 가입하기</button> :
+                                <button disabled className="default-btn grey">모집 마감</button>
+                            }
                         </p>
                     </div>
                 </aside>
@@ -350,7 +428,7 @@ export default function CrewDetail(){
                                     <div className="user-area">
                                         <b>{review.author_nickname}님의 후기</b>
                                         {
-                                            (user && review.author_id === user?.pk) &&
+                                            (user && review.author_id == user?.pk) &&
                                             <p>
                                                 <button
                                                     onClick={()=>{patchReview(review.id);}}
@@ -377,7 +455,7 @@ export default function CrewDetail(){
                     user &&
                     <form className="default-form" onSubmit={addReview}>
                         <textarea placeholder="후기를 작성해주세요" maxLength={300}></textarea>
-                        <button className="default-btn small">질문 등록</button>
+                        <button className="default-btn small">후기 등록</button>
                     </form>
                 }
             </section>
