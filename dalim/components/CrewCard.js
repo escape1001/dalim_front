@@ -1,8 +1,9 @@
 import styled from 'styled-components';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useRouter } from "next/router";
 import { Icon } from './Icons';
 import { convertDayKorFull, convertLocationKor } from '../utils/convert';
+import { AuthContext } from '../context/authContext';
 
 
 const Wrapper = styled.div`
@@ -69,14 +70,36 @@ const Wrapper = styled.div`
 
 export default function CrewCard({crew, is_personal=false}) {
     const [isFavorite, setIsFavorite] = useState(crew.is_favorite);
+    const {user, refreshToken} = useContext(AuthContext);
 
-    const toggleFavorite = (e) => {
-        console.log(e.target);
+    const toggleFavorite = async (e) => {
         e.stopPropagation();
-        
-        // [TO DO] 여기서 서버에 요청을 보내서 is_favorite를 업데이트해야 함
-        setIsFavorite(!isFavorite);
-    }
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/${crew.id}/favorite/`;
+        let headers = {};
+
+        if (!user){
+            alert("로그인 후 이용해주세요.");
+            return;
+        } else {
+            headers['Authorization'] = `Bearer ${localStorage.getItem('dalim_access')}`;
+        }
+
+        const response = await fetch(url, {
+            method: "POST",
+            headers: headers,
+            data: {
+                user_id: user.pk,
+            }
+        });
+
+        if (response.status === 401){
+            console.log("토큰 재요청");
+            await refreshToken();
+            await toggleFavorite();
+        } else if (response.status === 200){
+            setIsFavorite(!isFavorite);
+        }
+    };
 
     const router = useRouter();
 
