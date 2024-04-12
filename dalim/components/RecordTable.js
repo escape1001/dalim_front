@@ -1,4 +1,7 @@
 import styled from "styled-components";
+import { convertDate } from "../utils/convert";
+import { useContext } from "react";
+import { AuthContext } from "../context/authContext";
 
 const Wrapper = styled.table`
     .btn-area{
@@ -7,10 +10,10 @@ const Wrapper = styled.table`
     }
 `;
 
-export default function RecordTable({record}) {
-    const patchRecord = (record) => {
-        // prompt로 수정할 값 입력받기. 숫자만 입력받도록 유효성 검사
-        const mod_record = prompt(`기존 기록은 ${record.distance}m 입니다. 수정할 값을 입력해주세요.`);
+export default function RecordTable({record, getUserInfo, getRecordList}) {
+    const {user, refreshToken} = useContext(AuthContext);
+    const patchRecord = async (record) => {
+        const mod_record = prompt(`기존 기록은 ${record?.distance}m 입니다. 수정할 값을 입력해주세요.`);
 
         if (mod_record === null) return;
         
@@ -18,20 +21,62 @@ export default function RecordTable({record}) {
             alert("숫자만 입력해주세요.");
             return;
         } else {
-            // 수정 요청 [TO DO : /accounts/mypage/record/<int:record_id> PATCH 요청]
+            const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/mypage/record/${record.id}/`;
+            const headers = {
+                "Authorization": `Bearer ${localStorage.getItem("dalim_access")}`,
+                "Content-Type": "application/json",
+            };
+        
             const data = {
-                id:record.is,
+                id:record?.id,
                 distance: parseInt(mod_record)
             }
+
+            const response = await fetch(url, {
+                method: "PATCH",
+                headers: headers,
+                body: JSON.stringify(data),
+            });
+
+            if (user && response.status === 401) {
+                console.log("토큰 재요청");
+                await refreshToken();
+                await patchRecord(record);
+            } else if (response.status === 200) {
+                const data = await response.json();
+                getUserInfo();
+                getRecordList(data);
+            } else {
+                alert("수정에 실패했습니다.");
+                console.log(response);
+            }            
         }        
     };
     
-    const deleteRecord = (record) => {
-        // confirm으로 삭제 여부 확인
+    const deleteRecord = async (record) => {
         const isDelete = confirm("정말로 삭제하시겠습니까?");
         
         if(isDelete){
-            // 삭제 요청 [TO DO : /accounts/mypage/record/<int:record_id> DELETE 요청]
+            const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/mypage/record/${record.id}/`;
+            const headers = {
+                "Authorization": `Bearer ${localStorage.getItem("dalim_access")}`,
+            };
+            const response = await fetch(url, {
+                method: "DELETE",
+                headers: headers,
+            });
+
+            if (user && response.status === 401) {
+                console.log("토큰 재요청");
+                await refreshToken();
+                await deleteRecord(record);
+            } else if (response.status === 204) {
+                getUserInfo();
+                getRecordList();
+            } else {
+                alert("삭제에 실패했습니다.");
+                console.log(response);
+            }
         }
     };
 
@@ -47,10 +92,10 @@ export default function RecordTable({record}) {
             </thead>
             <tbody>
                 {
-                    record.map((item, index) => {
+                    record?.map((item, index) => {
                         return (
                         <tr key={index}>
-                            <td>{item.created_at}</td>
+                            <td>{convertDate(item.created_at)}</td>
                             <td>{item.description}</td>
                             <td>{item.distance}m</td>
                             <td>
@@ -64,7 +109,7 @@ export default function RecordTable({record}) {
                     })
                 }
                 {
-                    record.length === 0 &&
+                    record?.length === 0 &&
                     <tr>
                         <td colSpan="4">아직 기록이 없습니다.</td>
                     </tr>

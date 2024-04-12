@@ -9,6 +9,7 @@ import Modal from '../../components/Modal';
 import { Icon } from '../../components/Icons';
 import { AuthContext } from '../../context/authContext';
 import { useRouter } from 'next/router';
+import { convertLocationKor } from '../../utils/convert';
 
 
 const Wrapper = styled.main`
@@ -127,39 +128,57 @@ export default function Mypage() {
   const [infomodalOpen, setInfoModalOpen] = useState(false);
   const [raceModalOpen, setRaceModalOpen] = useState(false);
   const [raceList, setRaceList] = useState([]);
-  const {user} = useContext(AuthContext);
+  const {user, refreshToken} = useContext(AuthContext);
   const router = useRouter();
+  const [userInfo, setUserInfo] = useState();
+  const [recordList, setRecordList] = useState([]);
 
-  const user_info = {
-    id:1,
-    username: "김달림",
-    nickname: "달려달려",
-    phone_number: "010-1234-1234",
-    location_city:"서울",
-    location_district:"잠실",
-    distance:42500,
-    level: {
-        title:"새싹 달림이",
-        number: 1,
-        next_distance: 50000
-      },
-    profile_image: "https://picsum.photos/200"
+  const getUserInfo = async () => {
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/mypage/info/`;
+    const headers = {
+      "Authorization": `Bearer ${localStorage.getItem("dalim_access")}`,
+    };
+
+    const response = await fetch(url, {
+        method: "GET",
+        headers: headers,
+    });
+
+    if (user && response.status === 401) {
+        console.log("토큰 재요청");
+        await refreshToken();
+        await getUserInfo();
+    }
+    
+    const data = await response.json();
+    setUserInfo(data);
   };
 
-  const record = [
-    {
-      id:2,
-      created_at: "2023-24-25",
-      description: "대회명 등 자유입력",
-      distance : 500,
-    },
-    {
-      id:3,
-      created_at: "2023-24-25",
-      description: "오늘뛴거",
-      distance : 200,
-    },
-  ];
+  const getRecordList = async () => {
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/mypage/record/`;
+    const headers = {
+      "Authorization": `Bearer ${localStorage.getItem("dalim_access")}`,
+    };
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: headers,
+    });
+
+    if (user && response.status === 401) {
+      console.log("토큰 재요청");
+      await refreshToken();
+      await getRecordList();
+    } else if (response.status === 200) {
+      const data = await response.json();
+      setRecordList(data);
+    } else {
+      alert("기록을 불러오는데 실패했습니다.");
+      console.log(response);
+    }    
+  };
+
+
 
   const my_crews = [
     {
@@ -340,7 +359,7 @@ export default function Mypage() {
   };
 
   // api 요청하는 함수
-  const addRecord = () => {
+  const addRecord = async () => {
     // prompt로 입력할 값 입력받기. 숫자만 입력받도록 유효성 검사
     const record_distance = prompt("몇 미터나 달리셨나요?");
     const record_description = prompt("어디서, 누구와 달리셨나요?");
@@ -352,10 +371,35 @@ export default function Mypage() {
         return;
     } else {
         // 입력 요청 [TO DO : /accounts/mypage/record/<int:record_id> POST 요청]
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/mypage/record/`;
+        const headers = {
+          "Authorization": `Bearer ${localStorage.getItem("dalim_access")}`,
+          "Content-Type": "application/json",
+        };
         const data = {
           description: record_description,
           distance: parseInt(record_distance)
         }
+
+        const response = await fetch(url, {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify(data),
+        });
+
+        if (user && response.status === 401) {
+          console.log("토큰 재요청");
+          await refreshToken();
+          await addRecord();
+        } else if (response.status === 201) {
+          alert("기록이 추가되었습니다.");
+          // 기록 추가 후 reload
+          getRecordList();
+        } else {
+          alert("기록 추가에 실패했습니다.");
+          console.log(response);
+        }
+
     }      
   };
 
@@ -388,10 +432,11 @@ export default function Mypage() {
 
   useEffect(()=>{
     if (typeof window !== "undefined" && !user) {
-      alert("없으면 접근불가");
+      alert("로그인이 필요한 서비스입니다. 로그인 페이지로 이동합니다.");
       router.push("/");
     } else {
-      // [TO DO] user.id로 api 요청
+      getUserInfo();
+      getRecordList();
     }
   },[user])
 
@@ -401,21 +446,24 @@ export default function Mypage() {
         <h2 className='ir-hidden'>유저 기본정보</h2>
         <div className='info-area'>
           <p className='img-area'>
-            <img src={user_info.profile_image} alt=""/>
+            <img src={userInfo?.profile_image} alt=""/>
           </p>
           <div className='text-area'>
             <div className="greeting">
-              <p><b>#{user_info.level.title}</b></p>
+              {
+                userInfo?.level?.title &&
+                <p><b>#{userInfo?.level?.title}</b></p>
+              }
               <p>
-                <Link href={`/profile/${user_info.id}`} className="txt-btn">
-                  {user_info.nickname}
+                <Link href={`/profile/${userInfo?.id}`} className="txt-btn">
+                  {userInfo?.nickname}
                 </Link>
                 님 안녕하세요!
               </p>
             </div>
-            <p>이름: {user_info.username}</p>
-            <p>전화번호: {user_info.phone_number}</p>
-            <p>활동지역: {user_info.location_city} {user_info.location_district}</p>
+            <p>이름: {userInfo?.username}</p>
+            <p>전화번호: {userInfo?.phone_number}</p>
+            <p>활동지역: {convertLocationKor(userInfo?.location_city)} &gt; {userInfo?.location_district}</p>
             <button
               className='txt-btn top-sub-btn'
               onClick={()=>{setInfoModalOpen(true);}}
@@ -426,7 +474,7 @@ export default function Mypage() {
         </div>
 
         <div className="level-area">
-          <LevelBar level={user_info.level} distance={user_info.distance}/>
+          <LevelBar level={userInfo?.level} distance={userInfo?.distance}/>
         </div>
         <div className='btn-area'>
           <button
@@ -458,7 +506,11 @@ export default function Mypage() {
         recordOpen &&
         <section>
           <h2>달린 기록 보기</h2>
-          <RecordTable record={record}/>
+          <RecordTable
+            record={recordList}
+            getUserInfo={getUserInfo}
+            getRecordList={getRecordList}
+          />
         </section>
       }
 
@@ -529,11 +581,11 @@ export default function Mypage() {
               </li>
               <li>
                 <label htmlFor="nickname">닉네임</label>
-                <input type="text" id="nickname" name="nickname" placeholder={user_info.nickname}/>
+                <input type="text" id="nickname" name="nickname" placeholder={userInfo?.nickname}/>
               </li>
               <li>
                 <label htmlFor="phone_number">전화번호</label>
-                <input type="text" id="phone_number" name="phone_number" placeholder={user_info.phone_number}/>
+                <input type="text" id="phone_number" name="phone_number" placeholder={userInfo?.phone_number}/>
               </li>
               <li>
                 <button type="submit" className='default-btn'>수정하기</button>
