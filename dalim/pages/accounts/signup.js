@@ -97,7 +97,7 @@ export default function Signup() {
   
     // 휴대폰 번호 유효성 검사
     const phonePattern = /^\d{3}-\d{3,4}-\d{4}$/;
-    if (!phonePattern.test(data.phone)) {
+    if (!phonePattern.test(data.phone_number)) {
       alert("유효한 휴대폰 번호를 입력해주세요.");
       return false;
     }
@@ -175,7 +175,7 @@ export default function Signup() {
               </label>
               <label htmlFor='none'>
                 답변안함
-                <input checked value="none" id="none" name="gender" type="radio" required/>
+                <input value="none" id="none" name="gender" type="radio" required/>
               </label>
             </div>
           </li>
@@ -205,8 +205,8 @@ export default function Signup() {
             <input title="location_district" name="location_district" maxLength={30}/>
           </li>
           <li>
-            <label htmlFor='phone'>휴대폰 번호</label>
-            <input id="phone" name="phone" type="tel" required placeholder='010-1234-1234'/>
+            <label htmlFor='phone_number'>휴대폰 번호</label>
+            <input id="phone_number" name="phone_number" type="tel" required placeholder='010-1234-1234'/>
           </li>
           <li className='agreement'>
             <label htmlFor='agreement'>
