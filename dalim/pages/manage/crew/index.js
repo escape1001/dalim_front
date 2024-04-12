@@ -74,7 +74,7 @@ export default function CrewManageList(){
     const [crewList, setCrewList] = useState([]);
 
     const getCrewList = async (q) => {
-        const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/manage//`;
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/manage/`;
         const headers = {
             "Authorization": `Bearer ${localStorage.getItem('dalim_access')}`
         };

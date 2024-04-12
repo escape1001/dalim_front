@@ -90,7 +90,7 @@ export default function CrewManageDetail(){
     const [memberList, setMemberList] = useState([]);
 
     const getCrewInfo = async () => {
-        const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/manage//${crew_id}/`;
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/manage/${crew_id}/`;
         const headers = {
             "Content-Type": "application/json",
             "Authorization" : `Bearer ${localStorage.getItem("dalim_access")}`
@@ -115,7 +115,7 @@ export default function CrewManageDetail(){
     };
 
     const getMemberList = async () => {
-        const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/manage/${crew_id}/members//`;
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/manage/${crew_id}/members/`;
         const headers = {
             "Content-Type": "application/json",
             "Authorization" : `Bearer ${localStorage.getItem("dalim_access")}`
@@ -147,7 +147,7 @@ export default function CrewManageDetail(){
     },[crew_id])
 
     const toggleCrewOpen = async () => {
-        const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/manage//${crew_id}/`;
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/manage/${crew_id}/`;
         const data = {
             is_opened: crew.is_opened === "모집중" ? false : true
         }
@@ -180,7 +180,7 @@ export default function CrewManageDetail(){
             id: member_id,
             status: e.target.value
         };
-        const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/manage/${crew_id}/members//${member_id}/`;
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/manage/${crew_id}/members/${member_id}/`;
         const headers = {
             "Content-Type": "application/json",
             "Authorization" : `Bearer ${localStorage.getItem("dalim_access")}`

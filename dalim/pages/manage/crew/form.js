@@ -58,7 +58,7 @@ export default function CrewForm(){
             }
         }
         
-        const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/manage/${crew_id ? "/"+crew_id : ""}/`;
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/manage/${crew_id ? crew_id + "/" : ""}`;
         const headers = {
             "Authorization": `Bearer ${localStorage.getItem('dalim_access')}`
         };
