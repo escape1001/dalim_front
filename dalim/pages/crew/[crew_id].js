@@ -28,11 +28,7 @@ const Wrapper = styled.main`
         flex-direction: row-reverse;
         align-items: flex-start;
         position: relative;
-        flex-wrap: wrap;
-    }
-
-    .crew-info-area h2{
-        width: 100%;
+        /* flex-wrap: wrap; */
     }
 
     .crew-info-area aside{
@@ -392,7 +388,7 @@ export default function CrewDetail(){
                         </p>
                         <p>
                             {
-                                crew?.is_opened ?
+                                crew?.is_opened == "모집중" ?
                                 <button onClick={joinCrew} className="default-btn">크루 가입하기</button> :
                                 <button disabled className="default-btn grey">모집 마감</button>
                             }

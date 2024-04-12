@@ -26,11 +26,7 @@ const Wrapper = styled.main`
         flex-direction: row-reverse;
         align-items: flex-start;
         position: relative;
-        flex-wrap: wrap;
-    }
-
-    .race-info-area h2{
-        width: 100%;
+        /* flex-wrap: wrap; */
     }
 
     .race-info-area aside{
@@ -87,7 +83,6 @@ const Wrapper = styled.main`
     }
 
     .race-info-area .race-description{
-        flex-grow: 1;
         padding-right: 1rem;
     }
 
