@@ -41,6 +41,11 @@ const Wrapper = styled.main`
     width: calc((100% - 2rem)/3);
   }
 
+  .full-row{
+    width: 100%;
+    text-align: center;
+  }
+
   // 개별 스타일링
   .user-info-section .info-area{
     display: flex;
@@ -222,39 +227,6 @@ export default function Mypage() {
   };
 
 
-
-  // races/에 있는 대회 리스트. for addMyRace
-  const race_list = [
-    {
-      "id": 1,
-      "title": "양천구마라톤",
-      "reg_status": "접수중",
-      "d_day":12,
-      "location": "서울 양천운동장",
-      "start_date": "2024/05/30",
-      "end_date": "2024/05/31",
-      "reg_start_date": "2024/04/15",
-      "reg_end_date": "2024/05/27",
-      "courses": ["full", "half", "5km", "3km"],
-      "thumbnail_image": "https://picsum.photos/200",
-      "is_favorite": true,
-    },
-    {
-      "id": 1,
-      "title": "양천구마라톤",
-      "reg_status": "접수중",
-      "d_day":12,
-      "location": "서울 양천운동장",
-      "start_date": "2024/05/30",
-      "end_date": "2024/05/31",
-      "reg_start_date": "2024/04/15",
-      "reg_end_date": "2024/05/27",
-      "courses": ["full", "half", "5km", "3km"],
-      "thumbnail_image": "https://picsum.photos/200",
-      "is_favorite": true,
-    },
-  ];
-
   const favorite_list = {
       crew: [
         {
@@ -306,11 +278,23 @@ export default function Mypage() {
     setRecordOpen(!recordOpen);
   };
 
-  const openMyRace = () => {
+  const openMyRace = async() => {
     // 0. 모달창 띄우기
-    setRaceModalOpen(true);
     // 1. /accounts/mypage/race 대회 리스트 가져오기
-    setRaceList(race_list);
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/races/`;
+
+    const response = await fetch(url, {
+      method: "GET",
+    });
+    const data = await response.json();
+
+    if (response.status === 200) {
+      setRaceList(data);
+      setRaceModalOpen(true);
+    } else {
+      alert("대회 목록을 불러오는데 실패했습니다.");
+      console.log(response);
+    }
   };
   
   const validateForm = (data) => {
@@ -417,10 +401,35 @@ export default function Mypage() {
     }
   };
 
-  const addMyRace = (race_id) => {
-    // [TO DO] 1. 선택한 대회 id로 /accounts/mypage/race에 POST 요청하기
-    alert(race_id);
-    // 200받고 reload해버리자..
+  const addMyRace = async(race_id) => {
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/mypage/race/`;
+    const headers = {
+      "Authorization": `Bearer ${localStorage.getItem("dalim_access")}`,
+      "Content-Type": "application/json",
+    };
+    const data = {
+      "race_id" : race_id
+    }
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify(data),
+    });
+
+    if (user && response.status === 401) {
+      console.log("토큰 재요청");
+      await refreshToken();
+      await addMyRace(race_id);
+    } else if (response.status === 201) {
+      getMyRaces();
+      setRaceModalOpen(false);
+    } else {
+      // respinse error 메세지 출력
+      const data = await response.json();
+      alert(data.error);
+      console.log(response);
+    }
   };
 
   useEffect(()=>{
@@ -532,10 +541,16 @@ export default function Mypage() {
             myRaces?.map((item, index) => {
               return (
                 <li key={index}>
-                  <RaceCard race={item} is_personal={true}/>
+                  <RaceCard race={item} is_personal={true} getMyRaces={getMyRaces}/>
                 </li>
               )
             })
+          }
+          {
+            myRaces?.length === 0 &&
+            <li className='full-row'>
+              아직 참가한 대회가 없습니다.
+            </li>
           }
         </ul>
       </section>
@@ -596,11 +611,11 @@ export default function Mypage() {
         <Modal setModalOpen={setRaceModalOpen}>
           <ul className='race-list'>
             {
-              raceList.map((item, index) => {
+              raceList?.map((item, index) => {
                 return (
                   <li key={index}>
                     <p>
-                      {item.name} / {item.start_date} ~ {item.end_date}
+                      {item.title} / {item.start_date} ~ {item.end_date}
                     </p>
                     <p>
                       <button

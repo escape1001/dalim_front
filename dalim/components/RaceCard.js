@@ -85,7 +85,7 @@ const Wrapper = styled.div`
     }
 `;
 
-export default function RaceCard({race, is_personal=false}) {
+export default function RaceCard({race, is_personal=false, getMyRaces=null}) {
     const router = useRouter();
     const [isFavorite, setIsFavorite] = useState(race.is_favorite);
 
@@ -96,33 +96,53 @@ export default function RaceCard({race, is_personal=false}) {
         setIsFavorite(!isFavorite);
     }
     
-    const addRecord = (e) => {
-        e.stopPropagation();
-        // prompt로 수정할 값 입력받기.
-        const race_record = prompt("대회 기록을 입력해주세요.");
-        
-        if (race_record === null) return;
-        
-        // [TO DO] 여기서 서버에 요청을 보내서 레코드를 추가해야 함
-        alert(`add record : ${race.id} / ${race_record}`);
-    };
-    
-    const patchRecord = (e) => {
+    const patchRecord = async (e, is_add) => {
         e.stopPropagation();
 
-        // prompt로 수정할 값 입력받기.
-        const mod_record = prompt(`기존 기록은 ${race.record} 입니다. 수정할 값을 입력해주세요.`);
-
-        if (mod_record === null) return;
+        let prompt_message =  is_add ? "대회 기록을 입력해주세요." : `기존 기록은 ${race.record} 입니다. 수정할 값을 입력해주세요.`;
+        const race_record = prompt(prompt_message);
         
-        // 수정 요청 [TO DO : /accounts/mypage/race/record/<int:race_id> PATCH 요청]
-        alert(`patch record : ${race.id} / ${mod_record}m`);
+        if (race_record){
+            const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/mypage/race/${race?.joined_race_id}/`;
+            const headers = {
+                "Authorization": `Bearer ${localStorage.getItem("dalim_access")}`,
+                "Content-Type": "application/json",
+            };
+            const data = {
+                "race_record" : race_record
+            };
+
+            const response = await fetch(url, {
+                method: "PATCH",
+                headers: headers,
+                body: JSON.stringify(data),
+            });
+
+            if (response.status === 200){
+                getMyRaces();
+            } else{
+                alert("기록 추가에 실패했습니다.");
+                console.log(response);
+            }
+        }        
     };
     
-    const deleteRecord = (e) => {
+    
+    const deleteRecord = async (e) => {
         e.stopPropagation();
-        // [TO DO] 여기서 서버에 요청을 보내서 레코드를 삭제해야 함
-        alert(`delete record : ${race.id}`);
+        
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/mypage/race/${race?.joined_race_id}/`;
+        const headers = {
+            "Authorization": `Bearer ${localStorage.getItem("dalim_access")}`,
+        };
+        const response = await fetch(url, {
+            method: "DELETE",
+            headers: headers,
+        });
+
+        if (response.status === 204){
+            getMyRaces();
+        }
     };
 
 
@@ -168,14 +188,14 @@ export default function RaceCard({race, is_personal=false}) {
                     </ul>
                 </div>
                 {
-                    !race.d_day && (
+                    race.d_day < 0 && (
                         race.record ?
                         <p className='record'>
                             <span>
                                 내 기록 : <i>{race.record}</i>
                             </span>
                             <button
-                                onClick={(e)=>{patchRecord(e);}}
+                                onClick={(e)=>{patchRecord(e, false);}}
                                 className='txt-btn'
                             >
                                 내 기록 수정하기
@@ -189,7 +209,7 @@ export default function RaceCard({race, is_personal=false}) {
                         </p>:
                         <p className='record'>
                             <button
-                                onClick={(e)=>{addRecord(e);}}
+                                onClick={(e)=>{patchRecord(e, true);}}
                                 className='txt-btn'
                             >
                                 내 기록 추가하기
