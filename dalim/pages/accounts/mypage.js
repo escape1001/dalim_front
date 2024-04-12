@@ -139,6 +139,7 @@ export default function Mypage() {
   const [recordList, setRecordList] = useState([]);
   const [myCrews, setMyCrews] = useState([]);
   const [myRaces, setMyRaces] = useState([]);
+  const [favoriteList, setFavoriteList] = useState([]);
 
   const getUserInfo = async () => {
     const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/mypage/info/`;
@@ -206,6 +207,26 @@ export default function Mypage() {
     }
   };
 
+  const getFavoriteList = async () => {
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/mypage/favorites/`;
+    const headers = {
+      "Authorization": `Bearer ${localStorage.getItem("dalim_access")}`,
+    };
+    const response = await fetch(url, {
+      method: "GET",
+      headers: headers,
+    });
+
+    if (user && response.status === 401) {
+      console.log("토큰 재요청");
+      await refreshToken();
+      await getFavoriteList();
+    } else if (response.status === 200) {
+      const data = await response.json();
+      setFavoriteList(data);
+    }
+  };
+
   const getMyRaces = async () => {
     const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/mypage/race/`;
     const headers = {
@@ -226,52 +247,6 @@ export default function Mypage() {
     }
   };
 
-
-  const favorite_list = {
-      crew: [
-        {
-          "id": 1,
-          "name": "러닝 크루 A",
-          "is_favorite": true,
-          "meet_days": ["sat"],
-          "meet_time": "07:00",
-          "thumbnail_image": "https://picsum.photos/200",
-          "member_count": 20,
-          "location_city": "서울",
-          "location_district": "잠실"
-        },
-      ],
-      race: [
-        {
-          "id": 1,
-          "title": "양천구마라톤",
-          "reg_status": "접수중",
-          "d_day":12,
-          "location": "서울 양천운동장",
-          "start_date": "2024/05/30",
-          "end_date": "2024/05/31",
-          "reg_start_date": "2024/04/15",
-          "reg_end_date": "2024/05/27",
-          "courses": ["full", "half", "5km", "3km"],
-          "thumbnail_image": "https://picsum.photos/200",
-          "is_favorite": true,
-        },
-        {
-          "id": 1,
-          "title": "양천구마라톤",
-          "reg_status": "접수중",
-          "d_day":12,
-          "location": "서울 양천운동장",
-          "start_date": "2024/05/30",
-          "end_date": "2024/05/31",
-          "reg_start_date": "2024/04/15",
-          "reg_end_date": "2024/05/27",
-          "courses": ["full", "half", "5km", "3km"],
-          "thumbnail_image": "https://picsum.photos/200",
-          "is_favorite": true,
-        },
-      ]
-  };
 
   // 모달 관련 함수
   const openRecordArea = () => {
@@ -319,7 +294,6 @@ export default function Mypage() {
 
   // api 요청하는 함수
   const addRecord = async () => {
-    // prompt로 입력할 값 입력받기. 숫자만 입력받도록 유효성 검사
     const record_distance = prompt("몇 미터나 달리셨나요?");
     const record_description = prompt("어디서, 누구와 달리셨나요?");
 
@@ -329,7 +303,6 @@ export default function Mypage() {
         alert("숫자만 입력해주세요.");
         return;
     } else {
-        // 입력 요청 [TO DO : /accounts/mypage/record/<int:record_id> POST 요청]
         const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/mypage/record/`;
         const headers = {
           "Authorization": `Bearer ${localStorage.getItem("dalim_access")}`,
@@ -352,7 +325,6 @@ export default function Mypage() {
           await addRecord();
         } else if (response.status === 201) {
           alert("기록이 추가되었습니다.");
-          // 기록 추가 후 reload
           getRecordList();
         } else {
           alert("기록 추가에 실패했습니다.");
@@ -441,6 +413,7 @@ export default function Mypage() {
       getRecordList();
       getMyCrews();
       getMyRaces();
+      getFavoriteList();
     }
   },[user])
 
@@ -559,7 +532,7 @@ export default function Mypage() {
         <h2>나의 관심 리스트</h2>
         <ul>
           {
-            favorite_list.crew.map((item, index) => {
+            favoriteList?.crew?.map((item, index) => {
               return (
                 <li key={index}>
                   <Crewcard crew={item}/>
@@ -568,13 +541,19 @@ export default function Mypage() {
             })
           }
           {
-            favorite_list.race.map((item, index) => {
+            favoriteList?.race?.map((item, index) => {
               return (
                 <li key={index}>
                   <RaceCard race={item}/>
                 </li>
               )
             })
+          }
+          {
+            (favoriteList?.crew?.length === 0 && favoriteList?.race?.length === 0) &&
+            <li className='full-row'>
+              관심 리스트가 비어있습니다.
+            </li>
           }
         </ul>
       </section>
