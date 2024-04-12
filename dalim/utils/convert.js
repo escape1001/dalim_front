@@ -35,3 +35,15 @@ export const convertDayKorFull = (days) => {
 export const convertLocationKor = (location) => {
     return location_city_list.find(city => city.value === location)?.label;
 };
+
+
+export const convertCrewStatus = (status) => {
+    const statusList = {
+        member: '승인',
+        not_member: '미승인',
+        keeping: '심사중',
+        quit: '탈퇴',
+    }
+
+    return statusList[status];
+};

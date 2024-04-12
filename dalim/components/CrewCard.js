@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { useContext, useState } from 'react';
 import { useRouter } from "next/router";
 import { Icon } from './Icons';
-import { convertDayKorFull, convertLocationKor } from '../utils/convert';
+import { convertDayKorFull, convertLocationKor, convertCrewStatus } from '../utils/convert';
 import { AuthContext } from '../context/authContext';
 
 
@@ -112,7 +112,7 @@ export default function CrewCard({crew, is_personal=false}) {
                         is_personal ?
                         <>
                             <span></span>
-                            <i className='default-badge yellow'>{crew.status}</i>
+                            <i className='default-badge yellow'>{convertCrewStatus(crew.status)}</i>
                         </>:
                         <>
                             <span>{crew.member_count}명의 러너가 달리는 중</span>

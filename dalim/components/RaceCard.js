@@ -141,7 +141,7 @@ export default function RaceCard({race, is_personal=false}) {
                             }
                         </button>
                     }
-                    <i className="default-badge">{race.reg_status}{race.d_day ? ` D-${race.d_day}`: ""}</i>
+                    <i className="default-badge">{race.reg_status}{race.d_day>0 ? ` D${race.d_day * -1}`: ""}</i>
                 </p>
             </div>
             <div className='text-area'>

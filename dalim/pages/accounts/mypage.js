@@ -132,9 +132,12 @@ export default function Mypage() {
   const router = useRouter();
   const [userInfo, setUserInfo] = useState();
   const [recordList, setRecordList] = useState([]);
+  const [myCrews, setMyCrews] = useState([]);
+  const [myRaces, setMyRaces] = useState([]);
 
   const getUserInfo = async () => {
     const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/mypage/info/`;
+    
     const headers = {
       "Authorization": `Bearer ${localStorage.getItem("dalim_access")}`,
     };
@@ -178,75 +181,47 @@ export default function Mypage() {
     }    
   };
 
+  const getMyCrews = async () => {
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/mypage/crew/`;
+    const headers = {
+      "Authorization": `Bearer ${localStorage.getItem("dalim_access")}`,
+    };
+    const response = await fetch(url, {
+      method: "GET",
+      headers: headers,
+    });
+
+    if (user && response.status === 401) {
+      console.log("토큰 재요청");
+      await refreshToken();
+      await getMyCrews();
+    } else if (response.status === 200) {
+      const data = await response.json();
+      setMyCrews(data);
+    }
+  };
+
+  const getMyRaces = async () => {
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/mypage/race/`;
+    const headers = {
+      "Authorization": `Bearer ${localStorage.getItem("dalim_access")}`,
+    };
+    const response = await fetch(url, {
+      method: "GET",
+      headers: headers,
+    });
+
+    if (user && response.status === 401) {
+      console.log("토큰 재요청");
+      await refreshToken();
+      await getMyRaces();
+    } else if (response.status === 200) {
+      const data = await response.json();
+      setMyRaces(data);
+    }
+  };
 
 
-  const my_crews = [
-    {
-        id: 1,
-        status:"심사중",
-        name : "오름크루",
-        location_city:"서울",
-        location_district:"잠실",
-        meet_days:["mon","sat"],
-        meet_time:"PM 5:30",
-        thumbnail_image: "https://picsum.photos/200"
-    },
-    {
-        id: 2,
-        status:"승인",
-        name : "오름크루",
-        location_city:"서울",
-        location_district:"잠실",
-        meet_days:["mon","sat"],
-        meet_time:"PM 5:30",
-        thumbnail_image: "https://picsum.photos/200"
-    },
-  ];
-
-  const my_races = [
-    {
-      id:1,
-      reg_status:"접수완료",
-      d_day: 3,
-      location: "서울 양천운동장",
-      name : "양천마라톤",
-      start_date: "2024/05/30",
-      end_date: "2024/05/31",
-      reg_start_date: "2024/04/15",
-      reg_end_date: "2024/05/27",
-      courses: ["full"],
-      record: null,
-      thumbnail_image: "https://picsum.photos/200"
-    },
-    {
-      id:2,
-      reg_status:"접수완료",
-      d_day: null,
-      location: "서울 양천운동장",
-      name : "양천마라톤",
-      start_date: "2024/05/30",
-      end_date: "2024/05/31",
-      reg_start_date: "2024/04/15",
-      reg_end_date: "2024/05/27",
-      courses: ["full"],
-      record: "5:50",
-      thumbnail_image: "https://picsum.photos/200"
-    },
-    {
-      id:3,
-      reg_status:"접수완료",
-      d_day: null,
-      location: "서울 양천운동장",
-      name : "양천마라톤",
-      start_date: "2024/05/30",
-      end_date: "2024/05/31",
-      reg_start_date: "2024/04/15",
-      reg_end_date: "2024/05/27",
-      courses: ["full"],
-      record: null,
-      thumbnail_image: "https://picsum.photos/200"
-    },
-  ];
 
   // races/에 있는 대회 리스트. for addMyRace
   const race_list = [
@@ -403,24 +378,42 @@ export default function Mypage() {
     }      
   };
 
-  const submitModUserInfo = (e) => {
+  const submitModUserInfo = async (e) => {
     e.preventDefault();
 
     const form = e.target;
     const data = new FormData(form);
     const isValid = validateForm(Object.fromEntries(data));
+    
+    // 비어있는 값 있으면 form에서 제거
+    for (let key of data.keys()) {
+      if (!data.get(key)) {
+        data.delete(key);
+      }
+    }
 
     if (isValid){
-      // [TO DO] 1. /accounts/mypage에 PATCH 요청하기
-      alert("정보 수정 완료");
-      setInfoModalOpen(false);
-
-      // 확인용 : data의 formData json으로 변환
-      let object = {};
-      data.forEach((value, key) => {
-        object[key] = value;
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/mypage/info/`;
+      const headers = {
+        "Authorization": `Bearer ${localStorage.getItem("dalim_access")}`,
+      };
+      const response = await fetch(url, {
+        method: "PATCH",
+        headers: headers,
+        body: data,
       });
-      console.log(object);
+
+      if (user && response.status === 401) {
+        console.log("토큰 재요청");
+        await refreshToken();
+        await submitModUserInfo(e);
+      } else if (response.status === 200) {
+        getUserInfo();
+        setInfoModalOpen(false);
+      } else {
+        alert("수정에 실패했습니다.");
+        console.log(response);
+      }
     }
   };
 
@@ -437,6 +430,8 @@ export default function Mypage() {
     } else {
       getUserInfo();
       getRecordList();
+      getMyCrews();
+      getMyRaces();
     }
   },[user])
 
@@ -518,7 +513,7 @@ export default function Mypage() {
         <h2>내가 신청한 크루 현황</h2>
         <ul>
           {
-            my_crews.map((item, index) => {
+            myCrews?.map((item, index) => {
               return (
                 <li key={index}>
                   <Crewcard crew={item} is_personal={true}/>
@@ -534,7 +529,7 @@ export default function Mypage() {
         <button onClick={openMyRace} className='txt-btn top-sub-btn'>+ 대회 추가하기</button>
         <ul>
           {
-            my_races.map((item, index) => {
+            myRaces?.map((item, index) => {
               return (
                 <li key={index}>
                   <RaceCard race={item} is_personal={true}/>
