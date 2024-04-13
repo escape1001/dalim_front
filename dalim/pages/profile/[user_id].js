@@ -101,86 +101,35 @@ const Wrapper = styled.main`
 `;
 
 export default function Userhome() {
-    // userid 를 받아서 해당 유저의 정보를 보여주는 페이지
-    const { user } = useContext(AuthContext);    
-    const { user_id } = useRouter().query;
-    const [profileData, setProfileData] = useState(null);
+    const router = useRouter();
+    const { user, refreshToken } = useContext(AuthContext);
+    const { user_id } = router.query;
+    const [profile, setProfile] = useState();
+
+    const getProfile = async () => {
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/${user_id}/profile`;
+        let headers = {};
+
+        if (user){
+            headers['Authorization'] = `Bearer ${localStorage.getItem('dalim_access')}`;
+        }
+
+        const response = await fetch(url, {headers});
+        if (response.status === 401){
+            await refreshToken();
+        } else if (response.status === 404){
+            router.push('/404');
+        } else if (response.status === 200){
+            const data = await response.json();
+            setProfile(data);
+        } else {
+            alert("프로필을 불러오는데 실패했습니다.");
+            console.log(response);
+        }
+    };
 
     useEffect(() => {
-        // [TO DO] 서버에 요청을 보내서 user_id에 해당하는 유저 정보를 가져와야 함
-        // GET /accounts/<int:pk>/profile
-        const test_data = {
-            user:{
-                id:2,
-                username: "김달림",
-                nickname: "달려달려",
-                distance:42500,
-                level: {
-                    title:"새싹 달림이",
-                    number: 1,
-                    next_distance: 50000
-                },
-                profile_image: "https://picsum.photos/200",
-                crew : ["크루이름", "크루이름2"],
-                post_count: 3,
-                comment_count: 10
-            },
-            posts:[
-                {
-                    id: 2,
-                    title: "포스트 제목 포스트 제목 포스트 제목 포스트 제목 포스트 제목 포스트 제목 포스트 제목 포스트 제목",
-                    author: "글쓴이",
-                    comment_count: 123,
-                    like_count: 123,
-                }
-            ],
-            comments:[
-                {
-                    post: {
-                        id: 1,
-                        title: "포스트 제목",
-                        author: "글쓴이"
-                    },
-                    comment: "코멘트 내용"
-                },
-                {
-                    post: {
-                        id: 2,
-                        title: "포스트 제목",
-                        author: "글쓴이"
-                    },
-                    comment: "코멘트 내용"
-                },
-            ],
-            likes:[
-                {
-                    id: 2,
-                    title: "포스트 제목",
-                    author: "글쓴이",
-                    comment_count: 123,
-                    like_count: 123,
-                }
-            ],
-            reviews:{
-                crew:[
-                    {
-                        id: 2,
-                        name: "크루이름/대회이름",
-                        contents: "리뷰내용"
-                    }
-                ],
-                race:[
-                    {
-                        id: 2,
-                        name: "크루이름/대회이름",
-                        contents: "리뷰내용"
-                    }
-                ],
-            }
-        };
-
-        setProfileData(test_data);
-        // 만약 해당 유저 없을 시 404 페이지로 이동
+        getProfile();
     }, [user_id])
 
     return (
@@ -189,20 +138,20 @@ export default function Userhome() {
                 <h2 className='ir-hidden'>유저 기본정보</h2>
                 <div className='info-area'>
                     <p className='img-area'>
-                        <img src={profileData?.user.profile_image} alt=""/>
+                        <img src={profile?.user.profile_image} alt=""/>
                     </p>
                     <div className='text-area'>
                         <div className="greeting">
-                            <p><b>#{profileData?.user.level.title}</b> {profileData?.user.nickname}</p>
+                            <p><b>#{profile?.user.level.title}</b> {profile?.user.nickname}</p>
                         </div>
-                        <p>작성한 글: {profileData?.user.post_count} 건</p>
-                        <p>작성한 덧글: {profileData?.user.comment_count_count} 건</p>
-                        <p>{profileData?.user.crew.join(",")} 크루에서 달리는 중!</p>
+                        <p>작성한 글: {profile?.posts.length} 건</p>
+                        <p>작성한 덧글: {profile?.comments.length} 건</p>
+                        <p>{profile?.user.crew.join(",")} 크루에서 달리는 중!</p>
                     </div>
                 </div>
 
                 <div className="level-area">
-                    <LevelBar level={profileData?.user.level} distance={profileData?.user.distance}/>
+                    <LevelBar level={profile?.user.level} distance={profile?.user.distance}/>
                 </div>
             </section>
 
@@ -210,7 +159,7 @@ export default function Userhome() {
                 <h2>작성한 글</h2>
                 <ul>
                     {
-                        profileData?.posts.map((post, index) => (
+                        profile?.posts.map((post, index) => (
                             <li key={index}>
                                 <Link href={`/board/${post.id}`}>
                                     <p>
@@ -230,9 +179,9 @@ export default function Userhome() {
                 <h2>작성한 덧글</h2>
                 <ul>
                     {
-                        profileData?.comments.map((comment, index) => (
+                        profile?.comments.map((comment, index) => (
                             <li key={index}>
-                                <Link href={`/post/${comment.post.id}`}>
+                                <Link href={`/board/${comment.post.id}`}>
                                     <p>
                                         "{comment.comment}"
                                     </p>
@@ -253,9 +202,9 @@ export default function Userhome() {
                     <h2>좋아한 글</h2>
                     <ul>
                         {
-                            profileData?.likes.map((post, index) => (
+                            profile?.likes.map((post, index) => (
                                 <li key={index}>
-                                    <Link href={`/post/${post.id}`}>
+                                    <Link href={`/board/${post.post_id}`}>
                                         <p>
                                             {post.title}
                                         </p>
@@ -268,12 +217,12 @@ export default function Userhome() {
             }
 
             <section>
-                <h2>내가 남긴 후기</h2>
+                <h2>{profile?.user.nickname}님이 남긴 후기</h2>
                 <ul>
                     {
-                        profileData?.reviews.crew.map((review, index) => (
+                        profile?.reviews.crew.map((review, index) => (
                             <li key={index}>
-                                <Link href={`/crew/${review.id}`}>
+                                <Link href={`/crew/${review.crew_id}`}>
                                     <p>
                                         "{review.contents}"
                                     </p>
@@ -285,9 +234,9 @@ export default function Userhome() {
                         ))
                     }
                     {
-                        profileData?.reviews.race.map((review, index) => (
+                        profile?.reviews.race.map((review, index) => (
                             <li key={index}>
-                                <Link href={`/race/${review.id}`}>
+                                <Link href={`/race/${review.race_id}`}>
                                     <p>
                                         "{review.contents}"
                                     </p>
