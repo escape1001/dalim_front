@@ -10,21 +10,23 @@ const Wrapper = styled.header`
 
   nav {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     color: var(--color-point);
+    gap:4rem;
   }
   
   h1 {
     font-size: var(--font-size-huge);
     font-weight: 800;
+    flex-grow: 1;
   }
 
   ul {
     display: flex;
     gap: 2rem;
+    color: var(--color-navy);
   }
-
 `;
 
 export default function Header() {
@@ -54,18 +56,23 @@ export default function Header() {
                   게시판
                 </Link>
               </li>
-              <li>
-                <Link href="/accounts/mypage">
-                  마이페이지
-                </Link>
-              </li>
-              <li>
-                <Link href="/manage/crew">
-                  크루 관리(크루유저)
-                </Link>
-              </li>
+              {
+                user &&
+                <li>
+                  <Link href="/accounts/mypage">
+                    마이페이지
+                  </Link>
+                </li>
+              }
+              {
+                user?.user_type === 'crew' &&
+                <li>
+                  <Link href="/manage/crew">
+                    크루 관리
+                  </Link>
+                </li>
+              }
             </ul>
-
             <div>
               {
                 user ? 
@@ -73,7 +80,7 @@ export default function Header() {
                 <>
                   <Link href="/accounts/login">
                     로그인
-                  </Link>
+                  </Link> /&nbsp;
                   <Link href="/accounts/signup">
                     회원가입
                   </Link>
