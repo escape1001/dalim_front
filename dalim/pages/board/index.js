@@ -11,12 +11,14 @@ const Wrapper = styled.main`
     .category-area{
         display: flex;
         gap: 1rem;
+        flex-wrap: wrap;
     }
 
     .category-area li{
         border: 1px solid var(--color-light-grey);
         padding: 0.5rem 1rem;
         border-radius: .5rem;
+        flex-shrink: 0;
     }
 
     .category-area li.selected {
@@ -84,72 +86,79 @@ const Wrapper = styled.main`
 export default function PostList(){
     const router = useRouter();
     const {page, classification, category} = router.query;
+    const countPerPage = 10;
     const [currentPage, setCurrentPage] = useState(1);
     const [cateList, setCateList] = useState();
     const [postList, setPostList] = useState([]);
+
+
+    const getPostList = async (q) => {
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/boards/${q? q : ""}`;
+
+        const response = await fetch(url, {
+            method: "GET"
+        });
+        
+        const data = await response.json();
+        setPostList(data);
+    };
+
+    const getCategoryList = async () => {
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/boards/category`;
+
+        const response = await fetch(url, {
+            method: "GET"
+        });
+        
+        const data = await response.json();
+        setCateList(data);
+    };
     
 
     useEffect(() => {
-        // [TO DO] 서버에 요청을 보내서 caterory_list 받아와야 함
-        // GET /boards/category
-        const category_list_mock = {
-            post_classification : [
-                    {"value":"general", "label":"일반"},
-                    {"value":"event", "label":"이벤트"},
-                    {"value":"announcementl", "label":"공지"},
-            ],
-            category : [
-                    {"value":"general", "label":"일반"},
-                    {"value":"training", "label":"훈련"},
-                    {"value":"running_gear", "label":"러닝용품"},
-                    {"value":"end_of_month_sale", "label":"월말결산"},
-                    {"value":"course_recommendation", "label":"코스추천"},
-                ]
-        };
-        setCateList(category_list_mock);
-        console.log("category_list_mock");
+        getCategoryList();
     },[]);
 
     useEffect(() => {
         page ? setCurrentPage(page) : setCurrentPage(1);
         // [TO DO] 카테고리 선택 바뀔 때 마다 서버에 요청을 보내서 post_list 받아와야 함
-        // GET /boards/?page=1&size=20&category=general,notice&post_classification=general
+        // GET /boards/?page=1&size=${countPerPage}&category=general,notice&post_classification=general
         // classification, category에 따라 다른 쿼리스트링을 보내야 함
-        const query_string = `?page=1&size=20${category ? `&category=${category}` : ""}${classification ? `&post_classification=${classification}` : ""}`;
+        const query_string = `?page=${page || 1}&size=${countPerPage}${category ? `&category=${category}` : ""}${classification ? `&post_classification=${classification}` : ""}`;
         console.log(query_string);
-        const post_list_mock = {
-            "count": 20,
-            "results": [
-                {
-                "id": 1,
-                "author_id": 1,
-                "author_nickname": "user123",
-                "title": "Example Post 1",
-                "thumbnail_image": null,
-                "post_classification": "general",
-                "category": "일반",
-                "view_count": 10,
-                "comment_count": 3,
-                "created_at": "2024-04-01T12:00:00",
-                "updated_at": "2024-04-02T08:00:00"
-                },
-                {
-                "id": 2,
-                "author_id": 2,
-                "author_nickname": "user123",
-                "title": "Example Post 2",
-                "thumbnail_image": "https://picsum.photos/200",
-                "post_classification": "event",
-                "category": "이벤트",
-                "view_count": 5,
-                "comment_count": 3,
-                "created_at": "2024-04-02T10:00:00",
-                "updated_at": "2024-04-03T09:00:00"
-                },
-            ]
-        };
+        // const post_list_mock = {
+        //     "count": 20,
+        //     "results": [
+        //         {
+        //         "id": 1,
+        //         "author_id": 1,
+        //         "author_nickname": "user123",
+        //         "title": "Example Post 1",
+        //         "thumbnail_image": null,
+        //         "post_classification": "general",
+        //         "category": "일반",
+        //         "view_count": 10,
+        //         "comment_count": 3,
+        //         "created_at": "2024-04-01T12:00:00",
+        //         "updated_at": "2024-04-02T08:00:00"
+        //         },
+        //         {
+        //         "id": 2,
+        //         "author_id": 2,
+        //         "author_nickname": "user123",
+        //         "title": "Example Post 2",
+        //         "thumbnail_image": "https://picsum.photos/200",
+        //         "post_classification": "event",
+        //         "category": "이벤트",
+        //         "view_count": 5,
+        //         "comment_count": 3,
+        //         "created_at": "2024-04-02T10:00:00",
+        //         "updated_at": "2024-04-03T09:00:00"
+        //         },
+        //     ]
+        // };
         
-        setPostList(post_list_mock);
+        getPostList(query_string);
     },[router.query])
     
     return(
@@ -173,7 +182,7 @@ export default function PostList(){
                                 className={classification === cate.value ? "selected" : ""}
                             >
                                 <Link href={`/board?classification=${cate.value}`}>
-                                    {cate.label}
+                                    달림 {cate.label}
                                 </Link>
                             </li>
                         ))
@@ -231,6 +240,14 @@ export default function PostList(){
                                     <td>{post.view_count}</td>
                                 </tr>
                             ))}
+                            {
+                                postList.results?.length === 0 &&
+                                <tr>
+                                    <td colSpan="5">
+                                        게시글이 없습니다.
+                                    </td>
+                                </tr>
+                            }
                         </tbody>
                     </table>
                     <p className="btn-row">
@@ -243,7 +260,7 @@ export default function PostList(){
                 {/* 페이지네이션 */}
                 <ul className="pagination-area">
                     {
-                        Array(postList.count).fill(0).map((_, index) => (
+                        Array(parseInt(postList.count / countPerPage) || 0).fill(0).map((_, index) => (
                             <li
                                 key={index+1}
                                 className={currentPage == index+1 ? "selected" : ""}
