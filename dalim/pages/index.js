@@ -162,7 +162,7 @@ export default function Home() {
   useEffect(() => {
     getBannerList();
     getCrewList();
-    // getRaceList(); TO DO : 유선 수정 필요
+    getRaceList();
     getArticleList();
   },[]);
 

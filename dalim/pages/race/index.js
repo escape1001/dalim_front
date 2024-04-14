@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import RaceCard from "../../components/RaceCard";
+import { AuthContext } from "../../context/authContext";
 
 
 const Wrapper = styled.main`
@@ -75,98 +76,50 @@ const Wrapper = styled.main`
 `;
 
 export default function RaceList(){
+    const {user, refreshToken} = useContext(AuthContext);
     const [raceList, setRaceList] = useState([]);
+    const [query, setQuery] = useState("");
 
+    const getRaceList = async (q) => {
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/races/${q? q : ""}`;
+        let headers = {};
+        if (user) {
+            headers['Authorization'] = `Bearer ${localStorage.getItem('dalim_access')}`;
+        }
+
+        const response = await fetch(url, {
+            method: "GET",
+            headers: headers,
+        });
+
+        if (user && response.reg_status === 401) {
+            console.log("토큰 재요청");
+            await refreshToken();
+            await getRaceList();
+        }
+        
+        const data = await response.json();
+        setRaceList(data);
+    };
+    
     useEffect(() => {
-        // [TO DO] 서버에 요청을 보내서 race_list 받아와야 함
-        // GET /races/?status='keyword'&q="대회이름"   (status 로 필터링) 
-        const race_list_mock = [
-            {
-              "id": 1,
-              "title": "양천구마라톤",
-              "reg_status": "접수중",
-              "d_day":12,
-              "location": "서울 양천운동장",
-              "start_date": "2024/05/30",
-              "end_date": "2024/05/31",
-              "reg_start_date": "2024/04/15",
-              "reg_end_date": "2024/05/27",
-              "courses": ["full", "half", "5km", "3km"],
-              "thumbnail_image": "이미지 path",
-              "is_favorite": false,
-            },
-            {
-              "id": 1,
-              "title": "양천구마라톤",
-              "reg_status": "접수중",
-              "d_day":12,
-              "location": "서울 양천운동장",
-              "start_date": "2024/05/30",
-              "end_date": "2024/05/31",
-              "reg_start_date": "2024/04/15",
-              "reg_end_date": "2024/05/27",
-              "courses": ["full", "half", "5km", "3km"],
-              "thumbnail_image": "이미지 path",
-              "is_favorite": false,
-            },
-            {
-              "id": 1,
-              "title": "양천구마라톤",
-              "reg_status": "접수중",
-              "d_day":12,
-              "location": "서울 양천운동장",
-              "start_date": "2024/05/30",
-              "end_date": "2024/05/31",
-              "reg_start_date": "2024/04/15",
-              "reg_end_date": "2024/05/27",
-              "courses": ["full", "half", "5km", "3km"],
-              "thumbnail_image": "이미지 path",
-              "is_favorite": false,
-            },
-            {
-              "id": 1,
-              "title": "양천구마라톤",
-              "reg_status": "접수중",
-              "d_day":12,
-              "location": "서울 양천운동장",
-              "start_date": "2024/05/30",
-              "end_date": "2024/05/31",
-              "reg_start_date": "2024/04/15",
-              "reg_end_date": "2024/05/27",
-              "courses": ["full", "half", "5km", "3km"],
-              "thumbnail_image": "이미지 path",
-              "is_favorite": false,
-            },
-            {
-              "id": 1,
-              "title": "양천구마라톤",
-              "reg_status": "접수중",
-              "d_day":12,
-              "location": "서울 양천운동장",
-              "start_date": "2024/05/30",
-              "end_date": "2024/05/31",
-              "reg_start_date": "2024/04/15",
-              "reg_end_date": "2024/05/27",
-              "courses": ["full", "half", "5km", "3km"],
-              "thumbnail_image": "이미지 path",
-              "is_favorite": false,
-            },
-        ];
-
-        setRaceList(race_list_mock);
-    },[])
+        query ? getRaceList("?" + query) : getRaceList();
+    },[query])
 
     const searchSubmit = (e) => {
         e.preventDefault();
         const search = e.target.search.value;
-        const status = Array.from(e.target.status).filter((el) => el.checked).map((el) => el.value).join(",");
-        const query_string = (search ? `search=${search}` : "") + (status ? `&status=${status}` : "");
+        const reg_status = Array.from(e.target.reg_status).filter((el) => el.checked).map((el) => el.value).join(",");
+        const encodedSearch = encodeURIComponent(search);
+        const encodedreg_Status = encodeURIComponent(reg_status);
+        const query_string = (search ? `search=${encodedSearch}` : "") + (reg_status ? `&reg_status=${encodedreg_Status}` : "");
+
 
         if(query_string){
-            // [TO DO] 서버에 요청을 보내서 검색 결과를 받아와야 함
-            // GET /crews/?search=검색어&location_city=지역&meet_days=요일
+            setQuery(query_string);
             console.log(query_string);
-            //setRaceList(검색결과);
+        } else {
+            setQuery("");
         }
     };
     
@@ -184,19 +137,25 @@ export default function RaceList(){
                         <ul>
                             <li>
                                 <label>
-                                    <input name="status" type="checkbox" value="접수중"/>
+                                    <input name="reg_status" type="radio" value=""/>
+                                    선택안함
+                                </label>
+                            </li>
+                            <li>
+                                <label>
+                                    <input name="reg_status" type="radio" value="접수중"/>
                                     접수중
                                 </label>
                             </li>
                             <li>
                                 <label>
-                                    <input name="status" type="checkbox" value="접수예정"/>
+                                    <input name="reg_status" type="radio" value="접수예정"/>
                                     접수예정
                                 </label>
                             </li>
                             <li>
                                 <label>
-                                    <input name="status" type="checkbox" value="접수완료"/>
+                                    <input name="reg_status" type="radio" value="접수완료"/>
                                     접수완료
                                 </label>
                             </li>
