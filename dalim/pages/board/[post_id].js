@@ -84,108 +84,207 @@ const Wrapper = styled.main`
 `;
 
 export default function PostDetail(){
-    const { user } = useContext(AuthContext);
+    const { user, refreshToken } = useContext(AuthContext);
     const { post_id } = useRouter().query;
     const router = useRouter();
     const [post, setPost] = useState(null);
     const [comments, setComments] = useState([]);
     const [likes, setLikes] = useState(null);
 
-    useEffect(() => {
-        // [TO DO] 서버에 요청을 보내서 post_id에 해당하는 게시글 정보를 가져와야 함
-        const post_mock = {
-            "id": 1,
-            "author_id": 2,
-            "author_nickname": "john_doe",
-            "title": "New Post",
-            "contents": "This is a new post?.",
-            "thumbnail_image": "이미지 필드",
-            "post_classification": ["training", "general"],
-            "category": ["training", "general"],
-            "view_count": 10,
-            "created_at": "2023-04-04T12:00:00Z",
-            "updated_at": "2023-04-04T12:00:00Z",
-            "likes":{
-                "count": 10,
-                "is_liked":false
-            }
-        };
-        const comments_mock = [
-            {
-                "id": 1,
-                "author_id": 2,
-                "author_nickname": "john_doe",
-                "contents": "금연합시다",
-                "created_at": "2023-04-04T15:00:00Z"
-            },
-            {
-                "id": 2,
-                "author_id": 1,
-                "author_nickname": "john_doe",
-                "contents": "Django",
-                "created_at": "2023-04-04T15:30:00Z"
-            }
-        ];
-        // 해당 id에 포스트 있는 경우 setPost, 없는 경우 404 페이지로 이동
-        setPost(post_mock);
-        setComments(comments_mock);
-        setLikes(post_mock.likes);
-    },[post_id])
+    const getPost = async () => {
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/boards/${post_id}`;
+        let headers = {};
 
-    // API 관련 함수
-    const deletePost = () => {
-        // confirm으로 삭제 여부 확인
+        if (user) {
+            headers["Authorization"] = `Bearer ${localStorage.getItem("dalim_access")}`;
+        }
+
+        const response = await fetch(url, {
+            method: "GET",
+            headers: headers,
+        });
+        
+        if (response.status === 404){
+            alert("해당하는 게시글이 없습니다.");
+            router.push("/404");
+        } else if (user && response.status === 401) {
+            console.log("토큰 재요청");
+            await refreshToken();
+            await getPost();
+        }
+
+        const data = await response.json();
+        setPost(data);
+        setLikes(data.likes);
+    };
+
+    const getComments = async () => {
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/boards/${post_id}/comments`;
+        let headers = {};
+
+        const response = await fetch(url, {
+            method: "GET",
+        });
+        
+        const data = await response.json();
+        setComments(data);
+    };
+
+    const deletePost = async() => {
         const isDelete = confirm("정말로 삭제하시겠습니까?");
 
         if(isDelete){
-            // [TO DO] DELETE /boards/int:post_id
-            // 헤더 토큰 필요
-            // 정상 응답 오면 router.push("/board")
+            const url = `${process.env.NEXT_PUBLIC_API_URL}/boards/${post_id}`;
+            const headers = {
+                "Authorization": `Bearer ${localStorage.getItem("dalim_access")}`
+            };
+            const response = await fetch(url, {
+                method: "DELETE",
+                headers: headers,
+            });
+
+            if (response.status === 401) {
+                console.log("토큰 재요청");
+                await refreshToken();
+                await deletePost();
+            } else if (response.status === 200){
+                alert("게시글이 삭제되었습니다.");
+                router.push("/board");
+            } else {
+                alert("게시글 삭제에 실패했습니다.");
+                console.log(response);
+            }
         }
     };
 
-    const toggleLiked = () => {        
+    const toggleLiked = async() => {        
         // [TO DO] 여기서 서버에 요청을 보내서 setLikes로 업데이트해야 함
         // POST /boards/int:post_id/like
-        setLikes({
-            count: likes.count + (likes.is_liked ? -1 : 1),
-            is_liked: !likes.is_liked
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/boards/${post_id}/like`;
+        const headers = {
+            "Authorization": `Bearer ${localStorage.getItem("dalim_access")}`
+        };
+        const response = await fetch(url, {
+            method: "POST",
+            headers: headers,
         });
+
+        if (response.status === 401) {
+            console.log("토큰 재요청");
+            refreshToken();
+            toggleLiked();
+        } else if (response.status == 200){
+            setLikes({
+                count: likes.count + (likes.is_liked ? -1 : 1),
+                is_liked: !likes.is_liked
+            });
+        } else {
+            alert("좋아요 요청에 실패했습니다.");
+            console.log(response);
+        }
     }
 
-    const patchComment = (comment_id) => {
-        // 수정할 내용을 prompt로 입력받기
+    const patchComment = async (comment_id) => {
         const mod_contents = prompt("수정할 덧글 내용을 입력해주세요");
 
         if (mod_contents){
-            // [TO DO] PATCH /crews/<int:crew_id>/reviews/<int:comment_id>/
-            // 헤더 토큰 필요
-            // 응답 제대로 오면 setComments
+            const url = `${process.env.NEXT_PUBLIC_API_URL}/boards/${post_id}/comments/${comment_id}/`;
+            const headers = {
+                "Authorization": `Bearer ${localStorage.getItem("dalim_access")}`,
+                "Content-Type": "application/json",
+            };
+            const data = {
+                contents: mod_contents,
+            };
+            const response = await fetch(url, {
+                method: "PATCH",
+                headers: headers,
+                body: JSON.stringify(data),
+            });
+
+            if (response.status === 401) {
+                console.log("토큰 재요청");
+                await refreshToken();
+                await patchComment(comment_id);
+            } else if (response.status === 200){
+                getComments();
+            } else{
+                alert("덧글 수정에 실패했습니다.");
+                console.log(response);
+            
+            }
         }
     };
 
-    const deleteComment = (comment_id) => {
-        // confirm으로 삭제 여부 확인
+    const deleteComment = async (comment_id) => {
         const isDelete = confirm("정말로 삭제하시겠습니까?");
         
         if(isDelete){
-            // [TO DO] DELETE /crews/<int:crew_id>/reviews/<int:comment_id>/
-            // 200? 204? 정상 응답 오면 setComments
+            const url = `${process.env.NEXT_PUBLIC_API_URL}/boards/${post_id}/comments/${comment_id}/`;
+            const headers = {
+                "Authorization": `Bearer ${localStorage.getItem("dalim_access")}`
+            };
+
+            const response = await fetch(url, {
+                method: "DELETE",
+                headers: headers,
+            });
+
+            if (response.status === 401) {
+                console.log("토큰 재요청");
+                await refreshToken();
+                await deleteComment(comment_id);
+            } else if (response.status === 200){
+                getComments();
+            } else {
+                alert("덧글 삭제에 실패했습니다.");
+                console.log(response);
+            }
+
         }
     };
 
-    const addComment = (e) => {
+    const addComment = async (e) => {
         e.preventDefault();
 
         const contents = e.target.querySelector("textarea").value;
         if (contents){
-            // [TO DO] POST /crews/<int:crew_id>/reviews/
-            // 헤더 토큰 필요
-            // 응답 제대로 오면 reload해버려~
+            const url = `${process.env.NEXT_PUBLIC_API_URL}/boards/${post_id}/comments/`;
+            const headers = {
+                "Authorization": `Bearer ${localStorage.getItem("dalim_access")}`,
+                "Content-Type": "application/json",
+            };
+            const data = {
+                contents: contents,
+            };
+            const response = await fetch(url, {
+                method: "POST",
+                headers: headers,
+                body: JSON.stringify(data),
+            });
+            
+            if (response.status === 401) {
+                console.log("토큰 재요청");
+                await refreshToken();
+                await addComment(e);
+            } else if (response.status === 201){
+                e.target.querySelector("textarea").value = "";
+                getComments();
+            } else {
+                alert("덧글 등록에 실패했습니다.");
+                console.log(response);
+            }
         } else {
             alert("내용을 입력해주세요.");
         }
     };
+
+    useEffect(() => {
+        if (post_id){
+            getPost();
+            getComments();
+        }
+    },[post_id])
     
     return(
         <Wrapper className="center-content">
@@ -195,12 +294,7 @@ export default function PostDetail(){
                     <div className="title-row">
                         <div>
                             <p>
-                                [
-                                {
-                                    // post?.category와 post?.post_classification를 합친 배열을 join
-                                    post?.category.concat(post?.post_classification).join(" / ")
-                                }
-                                ]
+                                [{post?.category || post?.post_classification}]
                             </p>
                             
                             <p>
