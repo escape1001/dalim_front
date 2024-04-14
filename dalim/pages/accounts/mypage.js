@@ -3,7 +3,7 @@ import Link from 'next/link';
 import styled from 'styled-components';
 import LevelBar from '../../components/LevelBar';
 import RecordTable from '../../components/RecordTable';
-import Crewcard from '../../components/Crewcard';
+import Crewcard from '../../components/CrewCard';
 import RaceCard from '../../components/RaceCard';
 import Modal from '../../components/Modal';
 import { Icon } from '../../components/Icons';
