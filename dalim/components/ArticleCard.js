@@ -51,18 +51,11 @@ const Wrapper = styled.div`
     }
 `;
 
-export default function ArticleCard() {
-    const article = {
-        id:2,
-        thumbnail_image: "https://picsum.photos/200",
-        title: "메인 타이틀",
-        sub_title: "윗줄 부제",
-        link: "/crew/2",
-    };
+export default function ArticleCard({article}) {
 
     return (
-        <Wrapper onClick={()=>{router.push(`/crew/${race.id}`)}}>
-            <Link href={`/board/${article.id}`}>
+        <Wrapper>
+            <Link href={article.link_path}>
                 <div className='img-area'>
                     <img src={article.thumbnail_image} alt={article.title}/>
                 </div>

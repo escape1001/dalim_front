@@ -9,6 +9,8 @@ import CrewCard from '../components/CrewCard';
 import Link from 'next/link';
 import RaceCard from '../components/RaceCard';
 import ArticleCard from '../components/ArticleCard';
+import { useContext, useEffect, useState } from 'react';
+import { AuthContext } from '../context/authContext';
 
 
 const Wrapper = styled.main`
@@ -33,6 +35,12 @@ const Wrapper = styled.main`
     width: 100%;
     height: 40rem;
     background-color: #ccc;
+  }
+
+  .promotion-area .promotion-banner img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .article-area ul{
@@ -70,125 +78,93 @@ const Wrapper = styled.main`
 `;
 
 export default function Home() {
-  const crew_list = [
-    {
-      "id": 1,
-      "name": "러닝 크루 A",
-      "is_favorite": false,
-      "meet_days": ["sat"],
-      "meet_time": "07:00",
-      "thumbnail_image": "https://picsum.photos/200",
-      "member_count": 20,
-      "location_city": "서울",
-      "location_district": "잠실"
-    },
-    {
-      "id": 1,
-      "name": "러닝 크루 A",
-      "is_favorite": false,
-      "meet_days": ["sat"],
-      "meet_time": "07:00",
-      "thumbnail_image": "https://picsum.photos/200",
-      "member_count": 20,
-      "location_city": "서울",
-      "location_district": "잠실"
-    },
-    {
-      "id": 1,
-      "name": "러닝 크루 A",
-      "is_favorite": false,
-      "meet_days": ["sat"],
-      "meet_time": "07:00",
-      "thumbnail_image": "https://picsum.photos/200",
-      "member_count": 20,
-      "location_city": "서울",
-      "location_district": "잠실"
-    },
-    {
-      "id": 1,
-      "name": "러닝 크루 A",
-      "is_favorite": false,
-      "meet_days": ["sat"],
-      "meet_time": "07:00",
-      "thumbnail_image": "https://picsum.photos/200",
-      "member_count": 20,
-      "location_city": "서울",
-      "location_district": "잠실"
-    },
-  ];
+  const {user, refreshToken}  = useContext(AuthContext);
+  const [bannerList, setBannerList] = useState([]);
+  const [crewList, setCrewList] = useState([]);
+  const [raceList, setRaceList] = useState([]);
+  const [articleList, setArticleList] = useState([]);
 
-  const race_list = [
-      {
-        "id": 1,
-        "title": "양천구마라톤",
-        "reg_status": "접수중",
-        "d_day":12,
-        "location": "서울 양천운동장",
-        "start_date": "2024/05/30",
-        "end_date": "2024/05/31",
-        "reg_start_date": "2024/04/15",
-        "reg_end_date": "2024/05/27",
-        "courses": ["full", "half", "5km", "3km"],
-        "thumbnail_image": "이미지 path",
-        "is_favorite": false,
-      },
-      {
-        "id": 1,
-        "title": "양천구마라톤",
-        "reg_status": "접수중",
-        "d_day":12,
-        "location": "서울 양천운동장",
-        "start_date": "2024/05/30",
-        "end_date": "2024/05/31",
-        "reg_start_date": "2024/04/15",
-        "reg_end_date": "2024/05/27",
-        "courses": ["full", "half", "5km", "3km"],
-        "thumbnail_image": "이미지 path",
-        "is_favorite": false,
-      },
-      {
-        "id": 1,
-        "title": "양천구마라톤",
-        "reg_status": "접수중",
-        "d_day":12,
-        "location": "서울 양천운동장",
-        "start_date": "2024/05/30",
-        "end_date": "2024/05/31",
-        "reg_start_date": "2024/04/15",
-        "reg_end_date": "2024/05/27",
-        "courses": ["full", "half", "5km", "3km"],
-        "thumbnail_image": "이미지 path",
-        "is_favorite": false,
-      },
-      {
-        "id": 1,
-        "title": "양천구마라톤",
-        "reg_status": "접수중",
-        "d_day":12,
-        "location": "서울 양천운동장",
-        "start_date": "2024/05/30",
-        "end_date": "2024/05/31",
-        "reg_start_date": "2024/04/15",
-        "reg_end_date": "2024/05/27",
-        "courses": ["full", "half", "5km", "3km"],
-        "thumbnail_image": "이미지 path",
-        "is_favorite": false,
-      },
-      {
-        "id": 1,
-        "title": "양천구마라톤",
-        "reg_status": "접수중",
-        "d_day":12,
-        "location": "서울 양천운동장",
-        "start_date": "2024/05/30",
-        "end_date": "2024/05/31",
-        "reg_start_date": "2024/04/15",
-        "reg_end_date": "2024/05/27",
-        "courses": ["full", "half", "5km", "3km"],
-        "thumbnail_image": "이미지 path",
-        "is_favorite": false,
-      },
-    ];
+  const getBannerList = async () => {
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/promotions/`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (response.status === 200) {
+      setBannerList(data);
+    } else {
+      console.log('배너 목록을 가져오는데 실패했습니다.');
+    }
+  };
+
+  const getCrewList = async () => {
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/top6/`;
+    let headers = {};
+
+    if (user) {
+      headers['Authorization'] = `Bearer ${localStorage.getItem('dalim_access')}`;
+    }
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: headers,
+    });
+    const data = await response.json();
+
+    if (user && response.status === 401) {
+      console.log("토큰 재요청");
+      await refreshToken();
+      await getCrewList();
+    } else if (response.status === 200) {
+      setCrewList(data);
+    } else {
+      console.log('크루 목록을 가져오는데 실패했습니다.');
+    }
+  };
+
+  const getRaceList = async () => {
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/races/top6/`;
+    let headers = {};
+
+    if (user) {
+      headers['Authorization'] = `Bearer ${localStorage.getItem('dalim_access')}`;
+    }
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: headers,
+    });
+    const data = await response.json();
+
+    if (user && response.status === 401) {
+      console.log("토큰 재요청");
+      await refreshToken();
+      await getRaceList();
+    } else if (response.status === 200) {
+      setRaceList(data);
+    } else {
+      console.log('대회 목록을 가져오는데 실패했습니다.');
+    }
+  };
+
+  const getArticleList = async () => {
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/promotions/post/`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (response.status === 200) {
+      setArticleList(data);
+      console.log(data);
+    } else {
+      console.log('아티클 목록을 가져오는데 실패했습니다.');
+    }
+  };
+
+  useEffect(() => {
+    getBannerList();
+    getCrewList();
+    // getRaceList(); TO DO : 유선 수정 필요
+    getArticleList();
+  },[]);
 
   return (
     <Wrapper>
@@ -203,15 +179,16 @@ export default function Home() {
             navigation
             autoplay={{delay:1000}}
             >
-          <SwiperSlide>
-            <p className='promotion-banner'>img1</p>
-          </SwiperSlide>
-          <SwiperSlide>
-            <p className='promotion-banner'>img2</p>
-          </SwiperSlide>
-          <SwiperSlide>
-            <p className='promotion-banner'>img3</p>
-          </SwiperSlide>
+
+          {
+            bannerList.map((item, index) => (
+              <SwiperSlide className='promotion-banner' key={index}>
+                <Link href={item.link_path}>
+                  <img src={item.banner_image} alt={item.title}/>
+                </Link>
+              </SwiperSlide>
+            ))
+          }
         </Swiper>
       </section>
 
@@ -232,7 +209,7 @@ export default function Home() {
           }}
         >
           {
-            crew_list.map((item, index) => (
+            crewList?.map((item, index) => (
               <SwiperSlide key={index}>
                 <CrewCard crew={item}/>
               </SwiperSlide>
@@ -258,7 +235,7 @@ export default function Home() {
           }}
         >
           {
-            race_list.map((item, index) => (
+            raceList?.map((item, index) => (
               <SwiperSlide key={index}>
                 <RaceCard race={item}/>
               </SwiperSlide>
@@ -272,9 +249,9 @@ export default function Home() {
         <Link className='more txt-btn' href='/board'>전체보기</Link>
         <ul>
           {
-            Array(3).fill(0).map((item, index) => (
+            articleList?.map((item, index) => (
               <li key={index}>
-                <ArticleCard/>
+                <ArticleCard article ={item}/>
               </li>
             ))
           }
