@@ -1,7 +1,8 @@
 import styled from 'styled-components';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useRouter } from "next/router";
 import { Icon } from './Icons';
+import { AuthContext } from '../context/authContext';
 
 
 const Wrapper = styled.div`
@@ -87,14 +88,37 @@ const Wrapper = styled.div`
 
 export default function RaceCard({race, is_personal=false, getMyRaces=null}) {
     const router = useRouter();
+    const {user, refreshToken} = useContext(AuthContext);
     const [isFavorite, setIsFavorite] = useState(race.is_favorite);
 
-    const toggleFavorite = (e) => {
+    const toggleFavorite = async (e) => {
         e.stopPropagation();
-        
-        // [TO DO] 여기서 서버에 요청을 보내서 is_favorite를 업데이트해야 함
-        setIsFavorite(!isFavorite);
-    }
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/races/${race.id}/favorite/`;
+        let headers = {};
+
+        if (!user){
+            alert("로그인 후 이용해주세요.");
+            return;
+        } else {
+            headers['Authorization'] = `Bearer ${localStorage.getItem('dalim_access')}`;
+        }
+
+        const response = await fetch(url, {
+            method: "POST",
+            headers: headers,
+            data: {
+                user_id: user.pk,
+            }
+        });
+
+        if (response.status === 401){
+            console.log("토큰 재요청");
+            await refreshToken();
+            await toggleFavorite();
+        } else if (response.status === 201 || response.status === 204){
+            setIsFavorite(!isFavorite);
+        }
+    };
     
     const patchRecord = async (e, is_add) => {
         e.stopPropagation();
