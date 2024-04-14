@@ -169,7 +169,6 @@ export default function RaceCard({race, is_personal=false, getMyRaces=null}) {
         }
     };
 
-
     return (
         <Wrapper onClick={()=>{router.push(`/race/${race.id}`)}}>
             <div className='img-area'>
@@ -205,11 +204,12 @@ export default function RaceCard({race, is_personal=false, getMyRaces=null}) {
                     <b>종목</b>&nbsp;
                     <ul className="course-list">
                         {
-                            race.courses.map((course, index) => (
-                                <li className="default-badge yellow" key={index}>
-                                    {course}
-                                </li>
-                            ))
+                            (race?.courses instanceof Array ? race.courses : []).map((course, index) => {
+                                return (
+                                    <li className="default-badge yellow" key={index}>
+                                        {course}
+                                    </li>
+                            )})
                         }
                     </ul>
                 </div>
