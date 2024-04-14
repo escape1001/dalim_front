@@ -14,13 +14,18 @@ const Wrapper = styled.main`
         padding-bottom: 3rem;
     }
 
+    form li{
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
     .btn-row{
         justify-content: flex-end;
     }
 `;
 
 export default function PostForm(){
-    const {user} = useContext(AuthContext);
+    const {user, refreshToken} = useContext(AuthContext);
     const router = useRouter();
     const {post_id} = router.query;
     const [post, setPost] = useState();
@@ -49,13 +54,48 @@ export default function PostForm(){
         };
     }, []);
 
-    const postSubmit = (e) => {
+    const getCategoryList = async () => {
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/boards/category`;
+
+        const response = await fetch(url, {
+            method: "GET"
+        });
+        
+        const data = await response.json();
+        setCateList(data);
+    };
+
+    const getPost = async () => {
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/boards/${post_id}`;
+
+        const response = await fetch(url, {
+            method: "GET"
+        });
+        
+        const data = await response.json();
+        setPost(data);
+        setValue(data.contents);
+    };
+
+    const postSubmit = async (e) => {
         e.preventDefault();
         const form = e.target;
         const formData = new FormData(form);
         const contents_text = quillRef.current.getEditor().getText();
         const contents_html = quillRef.current.getEditor().root.innerHTML;
         formData.append('contents', contents_html);
+        
+        // 비어있는 input 제외
+        for (var pair of formData.entries()) {
+            if (pair[1] === ""){
+                formData.delete(pair[0]);
+            }
+        }
+
+        // 만역 post_classification이 없으면 추가
+        if(!formData.get('post_classification')){
+            formData.set('post_classification', 'general');
+        }
 
         // 유효성 검사
         // 제목과 내용 필수, post_classification 혹은 category 중 하나는 선택해야함
@@ -88,112 +128,104 @@ export default function PostForm(){
         } else {
             formData.delete('thumbnail_image');
         }
-        
-        // (확인용) formData를 json 형태로 변환
-        let object = {};
-        formData.forEach((value, key) => {
-            object[key] = value;
-        });
-        console.log(object);
 
-        // TO DO : 서버에 데이터 전송
-        // 헤더에 토큰 필요
-        if (post_id){
-            // 수정인 경우 PUT /boards/int:post_id
-            alert('수정');
-        } else {
-            // 신규 생성인 경우 POST /boards/
-            alert('신규작성');
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/boards/${post_id ? post_id+"/" : ""}`;
+        const headers = {
+            "Authorization": `Bearer ${localStorage.getItem('dalim_access')}`
         }
+        const response = await fetch(url, {
+            headers: headers,
+            method: post_id ? "PUT" : "POST",
+            body: formData
+        });
+
+        if (user && response.status === 401) {
+            console.log("토큰 재요청");
+            await refreshToken();
+            await postSubmit(e);
+        } else if (response.status === 201 || response.status === 200) {
+            router.push(`/board`); // TO DO 재철 수정해주면 포스트로 리디렉
+        } else {
+            alert("글 등록에 실패했습니다.");
+            console.log(response);
+        }
+
     };
 
     useEffect(() => {
-        // 0. 로그인한 유저 아니면 로그인 페이지로 이동
-
-        // 1. 수정인 경우 기존 데이터 받아오기
-        if(post_id){
-            // GET /boards/int:post_id
-            const post_mock = {
-                "id": 1,
-                "author_id": 1,
-                "author_nickname": "john_doe",
-                "title": "New Post",
-                "contents": "<h2>This is a new post.</h2>",
-                "thumbnail_image": "이미지 필드", 
-                "post_classification": ["training", "general"],
-                "category": ["training", "general"],
-                "view_count": 10,
-                "created_at": "2023-04-04T12:00:00Z",
-                "updated_at": "2023-04-04T12:00:00Z",
-                "likes":{
-                    "count": 10,
-                    "is_liked":true
-                }
-            };
-            setPost(post_mock);
-            setValue(post_mock.contents);
-        }
-
-        // 2. 카테고리 목록 받아오기
-        const category_list_mock = {
-            post_classification : [
-                    {"value":"general", "label":"일반"},
-                    {"value":"event", "label":"이벤트"},
-                    {"value":"announcementl", "label":"공지"},
-            ],
-            category : [
-                    {"value":"general", "label":"일반"},
-                    {"value":"training", "label":"훈련"},
-                    {"value":"running_gear", "label":"러닝용품"},
-                    {"value":"end_of_month_sale", "label":"월말결산"},
-                    {"value":"course_recommendation", "label":"코스추천"},
-                ]
-        };
-        setCateList(category_list_mock);
+        getCategoryList();
         
+        if(post_id){
+            getPost();
+        }
     },[post_id]);
-    
+    console.log(user);
     return(
         <Wrapper className="center-content">
             <section>
                 <h2>글 {post_id ? "수정": "작성"}</h2>
                 <form className="default-form grey" onSubmit={postSubmit}>
                     <ul>
+                        {
+                            user?.is_staff &&
+                            <li>
+                                <label>공지 카테고리</label>
+                                <ul className="checkbox-group">
+                                    {
+                                        cateList?.post_classification?.map((el, idx) => (
+                                            <li key={idx}>
+                                                <input
+                                                    type="radio"
+                                                    id={el.value}
+                                                    name="post_classification"
+                                                    value={el.value}
+                                                    checked={
+                                                        post?.post_classification.includes(el.value)
+                                                    }
+                                                    onChange={(e) => {
+                                                        if (post){
+                                                            if (e.target.checked){
+                                                                setPost({...post, post_classification: [...post?.post_classification, e.target.value]});
+                                                            } else {
+                                                                setPost({...post, post_classification: post?.post_classification.filter((item) => item !== e.target.value)});
+                                                            }
+                                                        }
+                                                    }}
+                                                    required
+                                                />
+                                                <label htmlFor={el.value}>{el.label}</label>
+                                            </li>
+                                        ))
+                                    }
+                                </ul>
+                            </li>
+                        }
                         <li>
                             <label>카테고리</label>
                             <ul className="checkbox-group">
                                 {
-                                    // staff만 post_classification 작성 가능
-                                    // post.post_classification에 해당하는 값은 체크되어 있어야 함
-                                    !user?.is_staff &&
-                                    cateList.post_classification?.map((el, idx) => (
+                                    cateList?.category?.map((el, idx) => (
                                         <li key={idx}>
                                             <input
-                                                type="checkbox"
-                                                id={el.value}
-                                                name="post_classification"
-                                                value={el.value}
-                                                checked={
-                                                    post?.post_classification.includes(el.value)
-                                                }
-                                            />
-                                            <label htmlFor={el.value}>{el.label}</label>
-                                        </li>
-                                    ))
-                                }
-                                {
-                                    cateList.category?.map((el, idx) => (
-                                        <li key={idx}>
-                                            <input
-                                                type="checkbox"
+                                                type="radio"
                                                 id={el.value}
                                                 name="category"
                                                 value={el.value}
                                                 checked={
                                                     post?.category.includes(el.value)
                                                 }
+                                                onChange={(e) => {
+                                                    if (post){
+                                                        if (e.target.checked){
+                                                            setPost({...post, category: [...post?.category, e.target.value]});
+                                                        } else {
+                                                            setPost({...post, category: post?.category.filter((item) => item !== e.target.value)});
+                                                        }
+                                                    }
+                                                }}
+                                                required
                                             />
-                                            <label htmlFor={el.value}>{el.label}</label>
+                                            <label htmlFor={el.value}> {el.value} / {el.label}</label>
                                         </li>
                                     ))
                                 }
@@ -201,7 +233,17 @@ export default function PostForm(){
                         </li>
                         <li>
                             <label>제목</label>
-                            <input type="text" name="title" required value={post?.title}/>
+                            <input
+                                type="text"
+                                name="title"
+                                value={post?.title}
+                                onChange={(e) => {
+                                    if (post){
+                                        setPost({...post, title: e.target.value});
+                                    }
+                                }}
+                                required
+                            />
                         </li>
                         <li>
                             <ReactQuill
