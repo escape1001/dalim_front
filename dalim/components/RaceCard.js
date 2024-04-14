@@ -149,8 +149,7 @@ export default function RaceCard({race, is_personal=false, getMyRaces=null}) {
                 console.log(response);
             }
         }        
-    };
-    
+    }; 
     
     const deleteRecord = async (e) => {
         e.stopPropagation();
