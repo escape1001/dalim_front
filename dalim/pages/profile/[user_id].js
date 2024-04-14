@@ -129,7 +129,9 @@ export default function Userhome() {
     };
 
     useEffect(() => {
-        getProfile();
+        if (user_id){
+            getProfile();
+        }
     }, [user_id])
 
     return (
