@@ -203,14 +203,6 @@ export default function CrewDetail(){
         setReviews(data);
     };
 
-    useEffect(() => {
-        if (crew_id){
-            getCrewInfo();
-            getReviews();
-        }
-    },[crew_id])
-
-    // API관련 함수
     const toggleFavorite = async () => {
         const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/${crew_id}/favorite/`;
         let headers = {};
@@ -357,6 +349,12 @@ export default function CrewDetail(){
         }
     };
 
+    useEffect(() => {
+        if (crew_id){
+            getCrewInfo();
+            getReviews();
+        }
+    },[crew_id]);
     
     return(
         <Wrapper>
