@@ -140,7 +140,7 @@ export default function Userhome() {
                 <h2 className='ir-hidden'>유저 기본정보</h2>
                 <div className='info-area'>
                     <p className='img-area'>
-                        <img src={profile?.user.profile_image} alt=""/>
+                        <img src={`${process.env.NEXT_PUBLIC_API_URL}${profile?.user.profile_image}`} alt=""/>
                     </p>
                     <div className='text-area'>
                         <div className="greeting">
