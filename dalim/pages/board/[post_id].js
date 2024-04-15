@@ -37,7 +37,7 @@ const Wrapper = styled.main`
         border-right: none;
     }
 
-    .post-area pre{
+    .post-area .contents{
         padding:4rem 0 8rem;
     }
 
@@ -320,9 +320,7 @@ export default function PostDetail(){
                             }
                         </div>
                     </div>
-                    <pre>
-                        포스트 내용 contents
-                    </pre>
+                    <div className="contents" dangerouslySetInnerHTML={{__html: post?.contents}}/>
                     <p className="btn-area">
                         <button className="default-btn small" onClick={router.back}>
                             목록

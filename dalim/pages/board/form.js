@@ -143,8 +143,11 @@ export default function PostForm(){
             console.log("토큰 재요청");
             await refreshToken();
             await postSubmit(e);
-        } else if (response.status === 201 || response.status === 200) {
-            router.push(`/board`); // TO DO 재철 수정해주면 포스트로 리디렉
+        } else if (response.status === 201) {
+            const data = await response.json();
+            router.push(`/board/${data.id}`);
+        } else if(response.status === 200){
+            router.push(`/board/${post_id}`);
         } else {
             alert("글 등록에 실패했습니다.");
             console.log(response);
@@ -159,7 +162,7 @@ export default function PostForm(){
             getPost();
         }
     },[post_id]);
-    console.log(user);
+
     return(
         <Wrapper className="center-content">
             <section>
