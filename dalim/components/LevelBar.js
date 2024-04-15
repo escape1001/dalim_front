@@ -28,12 +28,11 @@ const Wrapper = styled.div`
 `;
 
 export default function LevelBar({level, distance}) {
-    // 미터를 km로 변환하는 함수
-    const convertDistance = (distance) => {
-        return (distance / 1000).toFixed(1);
+    const convertDistance = (meter) => {
+        return (meter / 1000).toFixed(2);
     }
 
-    const percent = distance / level?.next_distance * 100;
+    const percent = (distance - level?.prev_distance) / (level?.next_distance - level?.prev_distance) * 100;
 
     return (
         <Wrapper>
