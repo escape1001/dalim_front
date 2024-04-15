@@ -100,7 +100,7 @@ export default function PostList(){
         });
         
         const data = await response.json();
-        setPostList(data);
+        setPostList(data.results.reverse());
     };
 
     const getCategoryList = async () => {
@@ -215,7 +215,7 @@ export default function PostList(){
                             </tr>
                         </thead>
                         <tbody>
-                            {postList.results?.map((post, index) => (
+                            {postList?.map((post, index) => (
                                 <tr key={index}>
                                     <td>{post.id}</td>
                                     <td className="title">
@@ -241,7 +241,7 @@ export default function PostList(){
                                 </tr>
                             ))}
                             {
-                                postList.results?.length === 0 &&
+                                postList?.length === 0 &&
                                 <tr>
                                     <td colSpan="5">
                                         게시글이 없습니다.
