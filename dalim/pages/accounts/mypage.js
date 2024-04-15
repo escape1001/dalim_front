@@ -324,7 +324,7 @@ export default function Mypage() {
           await refreshToken();
           await addRecord();
         } else if (response.status === 201) {
-          alert("기록이 추가되었습니다.");
+          getUserInfo();
           getRecordList();
         } else {
           alert("기록 추가에 실패했습니다.");
