@@ -349,7 +349,7 @@ export default function Mypage() {
     }
 
     if (isValid){
-      const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/mypage/info/`;
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/mypage/info/${user.pk}/`;
       const headers = {
         "Authorization": `Bearer ${localStorage.getItem("dalim_access")}`,
       };
