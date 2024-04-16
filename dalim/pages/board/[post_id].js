@@ -322,7 +322,7 @@ export default function PostDetail(){
                     </div>
                     <div className="contents" dangerouslySetInnerHTML={{__html: post?.contents}}/>
                     <p className="btn-area">
-                        <button className="default-btn small" onClick={router.back}>
+                        <button className="default-btn small" onClick={()=>{router.push("/board")}}>
                             목록
                         </button>
                         <button className="default-btn small line" onClick={toggleLiked}>
