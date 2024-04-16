@@ -171,7 +171,10 @@ export default function RaceCard({race, is_personal=false, getMyRaces=null}) {
     return (
         <Wrapper onClick={()=>{router.push(`/race/${race.id}`)}}>
             <div className='img-area'>
-                <img src={race.thumbnail_image} alt={race.title}/>
+                <img
+                    src={`${process.env.NEXT_PUBLIC_PORXY_URL}${race.thumbnail_image}`}
+                    alt={race.title}
+                />
                 <p className='overlay'>
                     {
                         !is_personal &&

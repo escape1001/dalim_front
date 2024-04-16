@@ -114,7 +114,10 @@ export default function CrewManageList(){
                                 <li key={crew.id}>
                                     <Link href={`/manage/crew/${crew.id}`}>
                                         <p className="img-area">
-                                            <img src={crew.thumbnail_image} alt=""/>
+                                            <img
+                                                src={`${process.env.NEXT_PUBLIC_PORXY_URL}${crew.thumbnail_image}`}
+                                                alt=""
+                                            />
                                         </p>
                                         <div className="text-area">
                                             <p>

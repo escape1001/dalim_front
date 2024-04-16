@@ -57,7 +57,10 @@ export default function ArticleCard({article}) {
         <Wrapper>
             <Link href={article.link_path}>
                 <div className='img-area'>
-                    <img src={article.thumbnail_image} alt={article.title}/>
+                    <img
+                        src={`${process.env.NEXT_PUBLIC_PORXY_URL}${article.thumbnail_image}`}
+                        alt={article.title}
+                    />
                 </div>
                 <div className='text-area'>
                     <p>{article.sub_title}</p>
