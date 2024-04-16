@@ -272,7 +272,7 @@ export default function Mypage() {
     }
   };
   
-  const validateForm = (data) => {
+  const validateForm = (data, formData) => {
     if (data.profile_image.size > 0) {
       // 첨부파일이 이미지파일인지, 용량 500mb 이하인지 확인
       const imageFile = data.profile_image;
@@ -289,6 +289,36 @@ export default function Mypage() {
         return false;
       }
     }
+
+    // 만약 data(formData)에 빈 값이 있다면, 해당 값 삭제
+    for (let key of formData.keys()) {
+      if (!formData.get(key)) {
+        formData.delete(key);
+      }
+    }
+
+    // 만약 profile_imaged의 size가 0이라면, 해당 값 삭제
+    if (formData.get("profile_image").size === 0) {
+      formData.delete("profile_image");
+    }
+
+    // 만약 phone_number가 숫자가 아니라면, 해당 값 삭제
+    if (isNaN(parseInt(formData.get("phone_number")))) {
+      formData.delete("phone_number");
+    }
+
+    //만약 formData에 값이 없다면 alert
+    let isEmpty = true;
+    for (let key of formData.keys()) {
+        isEmpty = false;
+        break;
+    }
+
+    if (isEmpty) {
+        alert("수정할 정보를 입력해주세요.");
+    }
+
+
     return true;
   };
 
@@ -339,14 +369,7 @@ export default function Mypage() {
 
     const form = e.target;
     const data = new FormData(form);
-    const isValid = validateForm(Object.fromEntries(data));
-    
-    // 비어있는 값 있으면 form에서 제거
-    for (let key of data.keys()) {
-      if (!data.get(key)) {
-        data.delete(key);
-      }
-    }
+    const isValid = validateForm(Object.fromEntries(data), data);
 
     if (isValid){
       const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/mypage/info/${user.pk}/`;
