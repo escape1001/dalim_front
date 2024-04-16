@@ -107,7 +107,7 @@ export default function Userhome() {
     const [profile, setProfile] = useState();
 
     const getProfile = async () => {
-        const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/${user_id}/profile`;
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/profile/${user_id}`;
         let headers = {};
 
         if (user){
@@ -140,11 +140,17 @@ export default function Userhome() {
                 <h2 className='ir-hidden'>유저 기본정보</h2>
                 <div className='info-area'>
                     <p className='img-area'>
-                        <img src={`${process.env.NEXT_PUBLIC_API_URL}${profile?.user.profile_image}`} alt=""/>
+                    <img src={
+                            profile?.user.profile_image ?
+                            `${process.env.NEXT_PUBLIC_API_URL}${profile?.user.profile_image}` :
+                            '/assets/images/default_profile.jpg'
+                        }
+                        alt=""
+                    />
                     </p>
                     <div className='text-area'>
                         <div className="greeting">
-                            <p><b>#{profile?.user.level.title}</b> {profile?.user.nickname}</p>
+                            <p><b>#{profile?.user.level?.title}</b> {profile?.user.nickname}</p>
                         </div>
                         <p>작성한 글: {profile?.posts.length} 건</p>
                         <p>작성한 덧글: {profile?.comments.length} 건</p>
