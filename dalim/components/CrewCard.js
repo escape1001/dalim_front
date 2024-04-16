@@ -106,7 +106,10 @@ export default function CrewCard({crew, is_personal=false}) {
     return (
         <Wrapper onClick={()=>{router.push(`/crew/${crew.id}`)}}>
             <div className='img-area'>
-                <img src={crew.thumbnail_image} alt={crew.name}/>
+                <img
+                    src={`${process.env.NEXT_PUBLIC_PORXY_URL}${crew.thumbnail_image}`}
+                    alt={crew.name}
+                />
                 <p className='overlay'>
                     {
                         is_personal ?

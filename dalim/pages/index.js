@@ -184,7 +184,10 @@ export default function Home() {
             bannerList.map((item, index) => (
               <SwiperSlide className='promotion-banner' key={index}>
                 <Link href={item.link_path}>
-                  <img src={item.banner_image} alt={item.title}/>
+                  <img
+                    src={`${process.env.NEXT_PUBLIC_PORXY_URL}${item.banner_image}`}
+                    alt={item.title}
+                  />
                 </Link>
               </SwiperSlide>
             ))
