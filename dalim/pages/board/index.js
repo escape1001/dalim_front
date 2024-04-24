@@ -222,10 +222,7 @@ export default function PostList(){
                                         <Link className="txt-btn" href={`/board/${post.id}`}>
                                             {
                                                 post.thumbnail_image &&
-                                                <img
-                                                    src={`${process.env.NEXT_PUBLIC_PORXY_URL}${post.thumbnail_image}`}
-                                                    alt=""
-                                                />
+                                                <img src={post.thumbnail_image} alt="" />
                                             }
                                             <p>
                                                 
