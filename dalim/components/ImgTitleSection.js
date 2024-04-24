@@ -56,10 +56,7 @@ export default function ImgTitleSection({isFavorite, toggleFavorite, name, badge
         <Wrapper>
             <h2 className="ir-hidden">{name}</h2>
             <div className='img-area'>
-                <img
-                    src={`${process.env.NEXT_PUBLIC_PORXY_URL}${imgUrl}`}
-                    alt=""
-                />
+                <img src={imgUrl} alt=""/>
                 <div className='overlay'>
                     <p className="center-content">
                         {
