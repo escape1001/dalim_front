@@ -26,6 +26,7 @@ const Wrapper = styled.main`
 
 export default function PostForm(){
     const {user, refreshToken} = useContext(AuthContext);
+    const img_upload_url = `https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGBB_API_KEY}`
     const router = useRouter();
     const {post_id} = router.query;
     const [post, setPost] = useState();
@@ -162,6 +163,48 @@ export default function PostForm(){
             getPost();
         }
     },[post_id]);
+
+    useEffect(() => {
+        const quill = quillRef.current;
+        
+        const handleImage = () => {
+            console.log("이미지 추가")
+            const input = document.createElement('input');
+            input.setAttribute('type', 'file');
+            input.setAttribute('accept', 'image/*');
+            input.click();
+
+            input.onchange = async () => {
+                const file = input.files[0];
+                
+                // 현재 커서위치 저장
+                const range = quill.selection;
+                // placeholder 추가
+                quill.getEditor().insertEmbed(range.index, 'image', '/assets/images/loading.gif');
+
+                try {
+                    const formData = new FormData();
+                    formData.append('image', file);
+                    const response = await fetch(img_upload_url, {
+                        method: "POST",
+                        body: formData
+                    });
+                    const data = await response.json();
+                    quill.getEditor().deleteText(range.index, 1);
+                    quill.getEditor().insertEmbed(range.index, 'image', data.data.url);
+                } catch (error) {
+                    quill.getEditor().deleteText(range.index, 1);
+                    console.log(error);
+                    alert('이미지 업로드에 실패했습니다.');
+                }
+            };
+        };
+
+        if (quillRef.current) {
+            const toolbar = quill.getEditor().getModule('toolbar');
+            toolbar.addHandler('image', handleImage);
+        }
+    }, []);
 
     return(
         <Wrapper className="center-content">
