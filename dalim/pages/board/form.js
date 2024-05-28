@@ -3,8 +3,12 @@ import styled from "styled-components";
 import { useRouter } from "next/router";
 import { AuthContext } from '../../context/authContext';
 let ReactQuill = typeof window === 'object' ? require('react-quill') : () => false;
+let ImageResize = typeof window === 'object' ? require('quill-image-resize-module-react') : () => false;
 import 'react-quill/dist/quill.snow.css';
 
+if (typeof window !== 'undefined' && ReactQuill.Quill) {
+    ReactQuill.Quill.register('modules/imageResize', ImageResize.default);
+}
 
 const Wrapper = styled.main`
     padding: var(--default-page-padding);
@@ -36,22 +40,26 @@ export default function PostForm(){
 
     const modules = useMemo(() => {
         return {
-          toolbar: {
-            container: [
-                [{ size: ['small', false, 'large', 'huge'] }],
-                [{ align: [] }],
-                ['bold', 'italic', 'underline', 'strike'],
-                [{ list: 'ordered' }, { list: 'bullet' }],
-                [
-                    {
-                    color: [],
-                    },
-                    { background: [] },
+            toolbar: {
+                container: [
+                    [{ size: ['small', false, 'large', 'huge'] }],
+                    [{ align: [] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ list: 'ordered' }, { list: 'bullet' }],
+                    [
+                        {
+                        color: [],
+                        },
+                        { background: [] },
+                    ],
+                    ['link', 'image'],
+                    ['clean'],
                 ],
-                ['link', 'image'],
-                ['clean'],
-            ],
-          },
+            },
+            imageResize: {
+                displaySize: true,
+                modules: ['Resize', 'DisplaySize'],
+            }
         };
     }, []);
 
