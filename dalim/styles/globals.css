@@ -262,6 +262,16 @@ main{
   background-color: var(--color-point) !important;
 }
 
+.quill{
+  width: 100%;
+}
+
+.ql-editor{
+  max-height: 70vh;
+  min-height: 70vh;
+  overflow-y: auto;
+}
+
 @media all and (max-width:1023px) {
   html{
     font-size:7.7px;
