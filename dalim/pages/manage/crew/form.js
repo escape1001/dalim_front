@@ -61,11 +61,17 @@ export default function CrewForm(){
         const formData = new FormData(e.target);
         const description = quillRef.current.getEditor().root.innerHTML;
         formData.set('description', description);
+        
         // 값이 blank인 input은 제외
         for (var pair of formData.entries()) {
             if (pair[1] === ""){
                 formData.delete(pair[0]);
             }
+        }
+
+        // 썸네일이미지 없을시(size:0) 제외
+        if (formData.get('thumbnail_image').size === 0){
+            formData.delete('thumbnail_image');
         }
         
         const url = `${process.env.NEXT_PUBLIC_API_URL}/crews/manage/${crew_id ? crew_id + "/" : ""}`;
@@ -178,7 +184,12 @@ export default function CrewForm(){
                     <ul>
                         <li>
                             <label>크루명</label>
-                            <input name="name" placeholder={crew?.name}/>
+                            <input
+                                name="name"
+                                value={crew?.name}
+                                onChange={(e) => setCrew({...crew, name: e.target.value})}
+                                required
+                            />
                         </li>
                         <li>
                             <label>활동지역</label>
@@ -190,13 +201,21 @@ export default function CrewForm(){
                                             key={index}
                                             value={city.value}
                                             selected={crew?.location_city === city.value}
+                                            onChange={(e) => setCrew({...crew, location_city: e.target.value})}
                                         >
                                             {city.label}
                                         </option>
                                     ))                                    
                                 }
                             </select>
-                            <input title="location_district" name="location_district" placeholder={crew?.location_district} maxLength={30}/>
+                            <input
+                                title="location_district"
+                                name="location_district"
+                                value={crew?.location_district}
+                                onChange={(e) => setCrew({...crew, location_district: e.target.value})}
+                                placeholder="상세지역"
+                                maxLength={30}
+                            />
                         </li>
                         <li>
                             <label>정기런 요일</label>
@@ -235,6 +254,7 @@ export default function CrewForm(){
                                             key={index}
                                             value={time.value}
                                             selected={crew?.meet_time == time.value}
+                                            onChange={(e) => setCrew({...crew, meet_time: e.target.value})}
                                         >
                                             {time.label}
                                         </option>
@@ -248,7 +268,13 @@ export default function CrewForm(){
                         </li>
                         <li>
                             <label>크루 SNS</label>
-                            <input type="link" name="sns_link" placeholder={crew?.sns_link}/>
+                            <input
+                                type="link"
+                                name="sns_link"
+                                placeholder="sns 주소를 입력해주세요."
+                                value={crew?.sns_link}
+                                onChange={(e) => setCrew({...crew, sns_link: e.target.value})}
+                            />
                         </li>
                         <li>
                             <label className="grow">크루 소개글</label>
