@@ -73,6 +73,13 @@ const AuthProvider = ({ children }) => {
 
             localStorage.setItem('dalim_access', result.access);
             localStorage.setItem('dalim_access_expiration', result.access_token_expiration);
+        } else if (response.status === 401) {
+            alert("로그인 시간이 만료되었습니다. 다시 로그인해주세요.");
+            localStorage.removeItem('dalim_access');
+            localStorage.removeItem('dalim_refresh');
+            localStorage.removeItem('dalim_user');
+            setUser(null);
+            router.push("/");
         } else {
             alert("토큰 갱신 실패");
             console.error(response);
