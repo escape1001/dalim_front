@@ -82,6 +82,7 @@ const Wrapper = styled.main`
     }
 
     .race-info-area .race-description{
+        flex-grow: 1;
         padding-right: 1rem;
     }
 

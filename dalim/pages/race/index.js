@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import RaceCard from "../../components/RaceCard";
 import { AuthContext } from "../../context/authContext";
+import Empty from "../../components/Empty";
 
 
 const Wrapper = styled.main`
@@ -27,6 +28,10 @@ const Wrapper = styled.main`
     section>ul>li{
         width: calc((100% - 1rem)/2);
         flex-grow: 0;
+    }
+
+    section>ul>li.full-row{
+        width: 100%;
     }
 
     .search-area form{
@@ -175,6 +180,12 @@ export default function RaceList(){
                             <RaceCard race={race}/>
                         </li>
                     ))}
+                    {
+                        raceList.length === 0 &&
+                        <li className="full-row">
+                            <Empty text="해당하는 대회가 없습니다." imgOn={true}/>
+                        </li>
+                    }
                 </ul>
             </section>
         </Wrapper>
