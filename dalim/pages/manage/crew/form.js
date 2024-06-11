@@ -1,10 +1,15 @@
 import { useRouter } from "next/router";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
-let ReactQuill = typeof window === 'object' ? require('react-quill') : () => false;
-import 'react-quill/dist/quill.snow.css';
 import { location_city_list, meet_time_list, week_list } from "../../../utils/constants";
 import { AuthContext } from "../../../context/authContext";
+let ReactQuill = typeof window === 'object' ? require('react-quill') : () => false;
+let ImageResize = typeof window === 'object' ? require('quill-image-resize-module-react') : () => false;
+import 'react-quill/dist/quill.snow.css';
+
+if (typeof window !== 'undefined' && ReactQuill.Quill) {
+    ReactQuill.Quill.register('modules/imageResize', ImageResize.default);
+}
 
 
 const Wrapper = styled.main`
@@ -20,28 +25,33 @@ export default function CrewForm(){
     const router = useRouter();
     const { crew_id } = router.query;
     const {user, refreshToken} = useContext(AuthContext);
+    const img_upload_url = `https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGBB_API_KEY}`;
     const [crew, setCrew] = useState();
     const [value, setValue] = useState();
     const quillRef = useRef();
 
     const modules = useMemo(() => {
         return {
-          toolbar: {
-            container: [
-                [{ size: ['small', false, 'large', 'huge'] }],
-                [{ align: [] }],
-                ['bold', 'italic', 'underline', 'strike'],
-                [{ list: 'ordered' }, { list: 'bullet' }],
-                [
-                    {
-                    color: [],
-                    },
-                    { background: [] },
+            toolbar: {
+                container: [
+                    [{ size: ['small', false, 'large', 'huge'] }],
+                    [{ align: [] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ list: 'ordered' }, { list: 'bullet' }],
+                    [
+                        {
+                        color: [],
+                        },
+                        { background: [] },
+                    ],
+                    ['link', 'image'],
+                    ['clean'],
                 ],
-                ['link', 'image'],
-                ['clean'],
-            ],
-          },
+            },
+            imageResize: {
+                displaySize: true,
+                modules: ['Resize', 'DisplaySize'],
+            }
         };
     }, []);
 
@@ -114,6 +124,45 @@ export default function CrewForm(){
             alert("로그인이 필요합니다.");
         } else if (user.user_type !== "crew"){
             alert("크루 관리 페이지는 크루만 접근 가능합니다.");
+        }
+
+        const quill = quillRef.current;
+        
+        const handleImage = () => {
+            const input = document.createElement('input');
+            input.setAttribute('type', 'file');
+            input.setAttribute('accept', 'image/*');
+            input.click();
+
+            input.onchange = async () => {
+                const file = input.files[0];
+                
+                // 현재 커서위치 저장
+                const range = quill.selection;
+                // placeholder 추가
+                quill.getEditor().insertEmbed(range.index, 'image', '/assets/images/loading.gif');
+
+                try {
+                    const formData = new FormData();
+                    formData.append('image', file);
+                    const response = await fetch(img_upload_url, {
+                        method: "POST",
+                        body: formData
+                    });
+                    const data = await response.json();
+                    quill.getEditor().deleteText(range.index, 1);
+                    quill.getEditor().insertEmbed(range.index, 'image', data.data.url);
+                } catch (error) {
+                    quill.getEditor().deleteText(range.index, 1);
+                    console.log(error);
+                    alert('이미지 업로드에 실패했습니다.');
+                }
+            };
+        };
+
+        if (quillRef.current) {
+            const toolbar = quill.getEditor().getModule('toolbar');
+            toolbar.addHandler('image', handleImage);
         }
 
         if (crew_id) {

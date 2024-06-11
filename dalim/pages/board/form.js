@@ -176,7 +176,6 @@ export default function PostForm(){
         const quill = quillRef.current;
         
         const handleImage = () => {
-            console.log("이미지 추가")
             const input = document.createElement('input');
             input.setAttribute('type', 'file');
             input.setAttribute('accept', 'image/*');
