@@ -169,7 +169,7 @@ export default function RaceCard({race, is_personal=false, getMyRaces=null}) {
     };
 
     return (
-        <Wrapper onClick={()=>{router.push(`/race/${race.id}`)}}>
+        <Wrapper onClick={()=>{router.push(`/race/${race.id || race.race_id}`)}}>
             <div className='img-area'>
                 <img src={race.thumbnail_image} alt={race.title}/>
                 <p className='overlay'>
