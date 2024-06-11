@@ -59,6 +59,11 @@ const AuthProvider = ({ children }) => {
     const refreshToken = async () => {
         const url = `${process.env.NEXT_PUBLIC_API_URL}/accounts/token/refresh/`;
         const data = {refresh : localStorage.getItem('dalim_refresh')};
+
+        if (!data.refresh) {
+            return;
+        }
+
         const response = await fetch(url, {
             method: "POST",
             headers: {
@@ -74,12 +79,10 @@ const AuthProvider = ({ children }) => {
             localStorage.setItem('dalim_access', result.access);
             localStorage.setItem('dalim_access_expiration', result.access_token_expiration);
         } else if (response.status === 401) {
-            alert("로그인 시간이 만료되었습니다. 다시 로그인해주세요.");
+            setUser(null);
             localStorage.removeItem('dalim_access');
             localStorage.removeItem('dalim_refresh');
             localStorage.removeItem('dalim_user');
-            setUser(null);
-            router.push("/");
         } else {
             alert("토큰 갱신 실패");
             console.error(response);
