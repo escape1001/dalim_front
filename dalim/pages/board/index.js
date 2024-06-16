@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import Link from "next/link";
 import styled from "styled-components";
 import { convertDate } from "../../utils/convert";
 import { useRouter } from "next/router";
+import { AuthContext } from '../../context/authContext';
 
 
 const Wrapper = styled.main`
@@ -85,6 +86,7 @@ const Wrapper = styled.main`
 
 export default function PostList(){
     const router = useRouter();
+    const {user} = useContext(AuthContext);
     const {page, classification, category} = router.query;
     const countPerPage = 10;
     const [currentPage, setCurrentPage] = useState(1);
@@ -251,9 +253,12 @@ export default function PostList(){
                         </tbody>
                     </table>
                     <p className="btn-row">
-                        <Link className="default-btn small line" href="/board/form">
-                            글쓰기
-                        </Link>
+                        {
+                            user &&
+                            <Link className="default-btn small line" href="/board/form">
+                                글쓰기
+                            </Link>
+                        }
                     </p>
                 </div>
 
