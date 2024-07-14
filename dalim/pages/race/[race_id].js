@@ -29,6 +29,7 @@ const Wrapper = styled.main`
     }
 
     .race-info-area aside{
+        flex-shrink: 0;
         position: sticky;
         top: 0;
         right: 0;
